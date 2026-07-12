@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "codex": {
+      "command": "codex",
+      "args": ["mcp"],
+      "_comment": "MCP do Codex CLI — motor de imagem keyless (image_gen / gpt-image-2). Usa a assinatura ChatGPT/Codex; NAO precisa de OPENAI_API_KEY. Requer o Codex CLI instalado e logado (comando 'codex' no PATH)."
+    }
+  }
+}

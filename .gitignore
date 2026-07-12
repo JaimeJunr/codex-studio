@@ -1,0 +1,12 @@
+# Saídas geradas em teste
+*.pptx
+generated_images/
+out/
+__pycache__/
+*.pyc
+
+# OS / editor
+.DS_Store
+node_modules/
+.env
+.env.*

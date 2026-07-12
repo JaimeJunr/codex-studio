@@ -1,0 +1,10 @@
+{
+  "name": "codex-deck",
+  "version": "0.1.0",
+  "description": "Motor de deck genérico: artigo/notas/outline vira slides-imagem via Codex e é montado em .pptx (python-pptx). Serve pra trabalho, documento, relatório, aula.",
+  "author": { "name": "JaimeJunr", "url": "https://github.com/JaimeJunr" },
+  "homepage": "https://github.com/JaimeJunr/codex-studio",
+  "repository": "https://github.com/JaimeJunr/codex-studio",
+  "license": "MIT",
+  "keywords": ["powerpoint", "pptx", "slides", "deck", "presentation"]
+}

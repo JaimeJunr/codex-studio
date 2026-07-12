@@ -1,0 +1,10 @@
+{
+  "name": "codex-biz",
+  "version": "0.1.0",
+  "description": "Especialista negócio: pitch deck, deck de vendas, proposta comercial e QBR/relatório executivo — templates curados sobre o codex-deck.",
+  "author": { "name": "JaimeJunr", "url": "https://github.com/JaimeJunr" },
+  "homepage": "https://github.com/JaimeJunr/codex-studio",
+  "repository": "https://github.com/JaimeJunr/codex-studio",
+  "license": "MIT",
+  "keywords": ["pitch", "sales", "proposal", "qbr", "business"]
+}

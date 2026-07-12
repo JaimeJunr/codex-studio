@@ -1,0 +1,62 @@
+{
+  "name": "codex-studio",
+  "owner": {
+    "name": "JaimeJunr",
+    "url": "https://github.com/JaimeJunr"
+  },
+  "metadata": {
+    "description": "Superpoder visual keyless pro Claude Code via Codex — imagem, decks/PPT de negócio, criativos sociais e visuais de site, sem API key.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "codex-image",
+      "source": "./plugins/codex-image",
+      "description": "Motor: gera e edita imagem dentro do Claude Code via Codex (gpt-image-2) — SEM API key, usa sua assinatura ChatGPT/Codex. Base dos outros plugins.",
+      "version": "0.1.0",
+      "keywords": ["image", "codex", "keyless", "gpt-image"]
+    },
+    {
+      "name": "codex-deck",
+      "source": "./plugins/codex-deck",
+      "description": "Motor de deck genérico: artigo/notas/outline → slides-imagem via Codex → .pptx (python-pptx). Serve pra trabalho, documento, relatório, aula.",
+      "version": "0.1.0",
+      "keywords": ["powerpoint", "pptx", "slides", "deck"]
+    },
+    {
+      "name": "codex-social",
+      "source": "./plugins/codex-social",
+      "description": "Criativos on-brand: capa de carrossel, story/reel, quote card, criativo de anuncio.",
+      "version": "0.1.0",
+      "keywords": ["social", "instagram", "carousel", "creative"]
+    },
+    {
+      "name": "codex-infographic",
+      "source": "./plugins/codex-infographic",
+      "description": "Transforma numero/dado/metrica em slide ou imagem infografica on-brand.",
+      "version": "0.1.0",
+      "keywords": ["infographic", "data", "chart"]
+    },
+    {
+      "name": "codex-biz",
+      "source": "./plugins/codex-biz",
+      "description": "Especialista negocio: pitch deck, deck de vendas, proposta comercial, QBR/relatorio executivo (templates sobre o codex-deck).",
+      "version": "0.1.0",
+      "keywords": ["pitch", "sales", "proposal", "business"]
+    },
+    {
+      "name": "codex-study",
+      "source": "./plugins/codex-study",
+      "description": "Especialista estudo: aula, resumo visual, flashcard, defesa/apresentacao academica.",
+      "version": "0.1.0",
+      "keywords": ["study", "education", "lecture", "flashcard"]
+    },
+    {
+      "name": "codex-web",
+      "source": "./plugins/codex-web",
+      "description": "Especialista web: hero, OG card, ilustracao de secao, favicon pra producao de sites.",
+      "version": "0.1.0",
+      "keywords": ["web", "hero", "og-image", "favicon"]
+    }
+  ]
+}
