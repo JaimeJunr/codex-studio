@@ -1,15 +1,15 @@
 ---
 name: edit
-description: Edita uma imagem existente via Codex (gpt-image-2), sem API key — trocar fundo, remover/adicionar objeto, mudar cor/estilo, inserir logo/texto, gerar variação a partir de referência. Use quando já existe uma imagem e o usuário quer ALTERÁ-la. Para criar do zero, use a skill generate.
+description: Edita uma imagem existente via cursor-mcp-bridge → Codex (gpt-image-2), sem API key — trocar fundo, remover/adicionar objeto, mudar cor/estilo, inserir logo/texto, gerar variação a partir de referência. Use quando já existe uma imagem e o usuário quer ALTERÁ-la. Para criar do zero, use a skill generate.
 ---
 
-# codex-image:edit — editar imagem keyless via Codex
+# codex-image:edit — editar imagem keyless via cursor-mcp-bridge → Codex
 
-Transforma uma imagem existente via o MCP `codex`. **Sem API key.**
+Transforma uma imagem existente via a tool **`generate_image`** do MCP cursor-bridge. **Sem API key.**
 
 ## Pré-requisito
 
-MCP `codex` disponível. Se **não** estiver: monte o **prompt de edição** e diga "cole no chatgpt.com/images **junto com a imagem original**". Não trave.
+MCP cursor-bridge disponível (cursor-mcp-bridge clonado+`npm run build`, `CURSOR_MCP_BRIDGE_DIST` exportado, Codex CLI logado). Se **não** estiver: monte o **prompt de edição** e diga "cole no chatgpt.com/images **junto com a imagem original**". Não trave.
 
 ## Fluxo
 
@@ -27,17 +27,20 @@ Do not: <itens do "o que NÃO fazer" do guia de estilo>.
 - **Uma alteração por vez.** Trocar fundo + remover objeto + mudar cor num prompt só sai impreciso — encadeie: edita, salva, edita de novo.
 - Preserve invariantes agressivamente (rosto/texto/marca não mudam salvo se pedido).
 
-### 3. Editar via Codex + generate-then-move ⚠️
-Passe a imagem original + o prompt de edição ao MCP `codex`. Salve **não-destrutivo** (não sobrescreva o original) e **mova o resultado pro projeto** — nunca deixe só em `~/.codex/generated_images/...`. Versione (`-v2`, `-v3`).
+### 3. Editar via `generate_image` ⚠️
+Chame a tool **`generate_image`** com:
+- **`input_images`**: array com os caminhos das imagens de origem.
+- **`description`**: o prompt Keep/Change (§2).
+- **`out_path`**: um **arquivo novo** (não sobrescreva o original) relativo ao cwd do projeto — versione (`-v2`, `-v3`). A tool salva **direto** nesse caminho e retorna só o path final.
 
 ### 4. Iterar
 Se desviou do que devia ficar, **reforce o "Keep:"** e tente de novo, uma mudança por vez.
 
 ### 5. Reportar
-Caminho final no projeto + prompt usado + provedor (Codex built-in). Não afirme perfeição; ofereça 1 ajuste.
+Caminho final no projeto + prompt usado + provedor (cursor-mcp-bridge → Codex built-in). Não afirme perfeição; ofereça 1 ajuste.
 
 ## Nunca
 
 - Alteração destrutiva no original (sempre salve cópia nova).
-- Deixar o resultado só no cache do Codex.
+- Usar `out_path` fora do cwd do projeto.
 - Editar rosto/pessoa de forma enganosa; usar imagem de terceiro sem autorização (direito de imagem / LGPD).
