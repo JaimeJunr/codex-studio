@@ -1,11 +1,11 @@
 ---
 name: generate
-description: Gera imagem (bitmap) dentro do Claude Code via Codex (gpt-image-2), sem API key. Use quando o usuário quer CRIAR uma imagem nova — foto, ilustração, mockup, capa, textura, slide-imagem. Salva no projeto (generate-then-move). Para EDITAR imagem existente, use a skill edit. Para vetor/HTML/CSS, não use esta skill.
+description: Gera imagem (bitmap) dentro do Claude Code via cursor-mcp-bridge → Codex (gpt-image-2), sem API key. Use quando o usuário quer CRIAR uma imagem nova — foto, ilustração, mockup, capa, textura, slide-imagem. Salva no projeto via out_path. Para EDITAR imagem existente, use a skill edit. Para vetor/HTML/CSS, não use esta skill.
 ---
 
-# codex-image:generate — gerar imagem keyless via Codex
+# codex-image:generate — gerar imagem keyless via cursor-mcp-bridge → Codex
 
-Cria imagem bitmap via o MCP `codex` (`image_gen` / gpt-image-2). **Sem API key** — usa a assinatura ChatGPT/Codex do usuário.
+Cria imagem bitmap via a tool **`generate_image`** do MCP cursor-bridge (`image_gen` / gpt-image-2). **Sem API key** — usa a assinatura ChatGPT/Codex do usuário. A tool já faz generate-then-move e devolve **só o caminho do PNG salvo** (nunca bytes inline).
 
 ## Quando usar / não usar
 
@@ -14,8 +14,8 @@ Cria imagem bitmap via o MCP `codex` (`image_gen` / gpt-image-2). **Sem API key*
 
 ## Pré-requisito
 
-MCP `codex` disponível (Codex CLI instalado + logado). Se **não** estiver:
-- Não trave. Gere o **prompt pronto** e diga: "cole no chatgpt.com/images". Informe que instalar/logar o Codex CLI destrava a geração automática.
+MCP cursor-bridge disponível (cursor-mcp-bridge clonado+`npm run build`, `CURSOR_MCP_BRIDGE_DIST` exportado, Codex CLI logado). Se **não** estiver:
+- Não trave. Gere o **prompt pronto** e diga: "cole no chatgpt.com/images". Informe que instalar o bridge + logar o Codex CLI destrava a geração automática.
 
 ## Fluxo
 
@@ -32,13 +32,12 @@ Ordem: **sujeito+ação → cenário/ambiente → iluminação → paleta (cores
 
 Mostre o prompt ao usuário **antes** de gerar (pré-aprovação), salvo quando for só preview/brainstorm.
 
-### 3. Gerar via Codex + generate-then-move ⚠️
-Chame o MCP `codex` pedindo pra gerar a imagem **e mover o PNG** pro destino do projeto.
+### 3. Gerar via `generate_image` ⚠️
+Chame a tool **`generate_image`** com:
+- **`description`**: o prompt montado (§2).
+- **`out_path`**: destino do PNG **relativo ao cwd do projeto** (ex: `assets/hero.png`, `marketing/imagens/capa.png`). A tool salva **direto** nesse caminho — não há etapa manual de mover de `~/.codex/generated_images`.
 
-**Regra de ouro (generate-then-move):** o Codex salva por padrão em `~/.codex/generated_images/...` (ou `$CODEX_HOME/...`). **Nunca** deixe um asset do projeto só lá:
-- Se o usuário deu um destino → mova/copie pra lá.
-- Se é asset do projeto → mova pro workspace (ex: `assets/`, `marketing/imagens/`, `out/`).
-- Se é só preview/brainstorm → pode deixar no caminho padrão e mostrar inline.
+O `out_path` **deve** ficar dentro do cwd do projeto (o sandbox do bridge só monta o cwd). A tool retorna **apenas o caminho final salvo**.
 
 **Não** troque de modelo silenciosamente (gpt-image-2 → gpt-image-1.5). Se algo forçar downgrade, pergunte antes.
 
@@ -46,11 +45,11 @@ Chame o MCP `codex` pedindo pra gerar a imagem **e mover o PNG** pro destino do 
 Inspecione: sujeito, estilo, composição, **precisão do texto**, itens a evitar. Ajuste com **uma** mudança alvo e re-cheque — não empilhe 5 mudanças num prompt.
 
 ### 5. Reportar
-Sempre informe: **caminho final salvo no projeto**, o **prompt final**, e que foi via **built-in do Codex** (keyless). Lote = uma chamada por asset.
+Sempre informe: **caminho final salvo no projeto**, o **prompt final**, e que foi via **cursor-mcp-bridge → Codex built-in** (keyless). Lote = uma chamada por asset.
 
 ## Nunca
 
-- Deixar asset do projeto só em `~/.codex/generated_images/...`.
+- Usar `out_path` fora do cwd do projeto.
 - Afirmar que ficou perfeito — descreva o que foi pedido e ofereça 1 ajuste.
 - Gerar imagem de pessoa real/depoimento sem material autorizado.
 - Publicar/entregar como final sem quem decide aprovar (quando houver esse fluxo no projeto).
