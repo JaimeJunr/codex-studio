@@ -1,0 +1,10 @@
+{
+  "name": "codex-bridge-image",
+  "version": "0.1.0",
+  "description": "Motor de imagem keyless via cursor-mcp-bridge: gera e edita imagem dentro do Claude Code roteando ao Codex (gpt-image-2), sem API key. Alternativa experimental ao MCP codex direto.",
+  "author": { "name": "JaimeJunr", "url": "https://github.com/JaimeJunr" },
+  "homepage": "https://github.com/JaimeJunr/codex-studio",
+  "repository": "https://github.com/JaimeJunr/codex-studio",
+  "license": "MIT",
+  "keywords": ["image", "codex", "keyless", "gpt-image", "edit", "cursor-mcp-bridge"]
+}
