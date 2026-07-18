@@ -17,6 +17,13 @@
       "keywords": ["image", "codex", "keyless", "gpt-image"]
     },
     {
+      "name": "codex-bridge-image",
+      "source": "./plugins/codex-bridge-image",
+      "description": "Motor experimental: gera e edita imagem via cursor-mcp-bridge → Codex (gpt-image-2) — SEM API key. Alternativa ao MCP codex direto; requer bridge clonado+build e CURSOR_MCP_BRIDGE_DIST.",
+      "version": "0.1.0",
+      "keywords": ["image", "codex", "keyless", "gpt-image", "cursor-mcp-bridge"]
+    },
+    {
       "name": "codex-deck",
       "source": "./plugins/codex-deck",
       "description": "Motor de deck genérico: artigo/notas/outline → slides-imagem via Codex → .pptx (python-pptx). Serve pra trabalho, documento, relatório, aula.",

@@ -37,6 +37,7 @@ Um comando por linha (o Claude Code interpreta slash line-by-line).
 | Plugin | Camada | O que faz |
 |---|---|---|
 | **codex-image** | motor | Gera/edita imagem via Codex (keyless). `generate-then-move`, texto PT-BR na imagem. Base dos demais. |
+| **codex-bridge-image** | motor (experimental) | Mesmo motor gpt-image-2, mas roteado pelo [cursor-mcp-bridge](https://github.com/JaimeJunr/cursor-mcp-bridge) em vez do MCP `codex` direto. |
 | **codex-deck** | genérico | Deck genérico → slides-imagem → `.pptx`. Trabalho, documento, relatório, aula. |
 | **codex-social** | genérico | Capa de carrossel, story/reel, quote card, criativo de anúncio. |
 | **codex-infographic** | genérico | Número/dado → slide infográfico. |
@@ -57,6 +58,17 @@ codex-image  ──(MCP)──►  Codex CLI  ──►  image_gen (gpt-image-2,
 ```
 
 Princípios herdados do `image_gen` oficial do Codex e da comunidade: **built-in tool primeiro** (sem chave), **generate-then-move** (nunca deixar asset só no cache do Codex), **fluxo estágio-a-estágio** (confirma outline/estilo/amostra antes de gerar tudo), e **biblioteca de estilos** versionada em cada plugin (`references/`).
+
+### codex-bridge-image (experimental)
+
+Alternativa ao caminho `codex mcp` direto: o plugin **`codex-bridge-image`** roteia geração/edição de imagem pelo MCP externo **[cursor-mcp-bridge](https://github.com/JaimeJunr/cursor-mcp-bridge)** (`mcp__cursor-bridge__generate_image`). O bridge ainda usa `codex exec` + `image_gen` / gpt-image-2 (keyless) — só muda *como* o Claude Code fala com o Codex.
+
+**Setup extra (só este plugin):**
+1. Clone e build do bridge: `git clone …/cursor-mcp-bridge && cd cursor-mcp-bridge && npm install && npm run build`
+2. Exporte o caminho do bundle: `export CURSOR_MCP_BRIDGE_DIST=/caminho/para/cursor-mcp-bridge/dist/index.js`
+3. Instale: `/plugin install codex-bridge-image@codex-studio` (em vez de, ou além de, `codex-image`)
+
+Use `codex-image` para o fluxo padrão (MCP `codex` no PATH). Use `codex-bridge-image` quando quiser testar o bridge — por exemplo em hosts onde o MCP direto do Codex CLI não encaixa, mas o bridge sim.
 
 ## Créditos e inspiração
 
