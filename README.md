@@ -29,6 +29,10 @@ O Claude Code não gera pixel. O `codex-studio` resolve isso ligando o Claude Co
 /plugin install codex-biz@codex-studio         # especialista: negócio
 /plugin install codex-study@codex-studio       # especialista: estudo
 /plugin install codex-web@codex-studio         # especialista: site
+/plugin install codex-sprite@codex-studio      # game dev 2D (base pai)
+/plugin install codex-pixel@codex-studio       # estilo: pixel art
+/plugin install codex-cartoon@codex-studio     # estilo: cartoon
+/plugin install codex-realistic@codex-studio   # estilo: realista
 ```
 
 Um comando por linha (o Claude Code interpreta slash line-by-line).
@@ -44,6 +48,10 @@ Um comando por linha (o Claude Code interpreta slash line-by-line).
 | **codex-biz** | especialista | Pitch, deck de vendas, proposta, QBR (templates sobre o `codex-deck`). |
 | **codex-study** | especialista | Aula, resumo, flashcard, defesa acadêmica. |
 | **codex-web** | especialista | Hero, OG card, ilustração de seção, favicon pra sites. |
+| **codex-sprite** | genérico (base pai) | Game dev 2D: personagens, sprite sheets, tilesets, itens, UI. Pós-processa (fundo→alpha, sheet+JSON) via `spritekit.py`. Estilo-agnóstico. |
+| **codex-pixel** | especialista (estilo) | Pixel art autêntico: grid real, paleta (DB16/PICO-8/NES), pixelate+quantize sobre o `codex-sprite`. |
+| **codex-cartoon** | especialista (estilo) | Cartoon/toon: cores chapadas, bold outline sobre o `codex-sprite`. |
+| **codex-realistic** | especialista (estilo) | Realista/painterly: volume, luz, textura sobre o `codex-sprite`. |
 
 ## Como funciona (arquitetura)
 
