@@ -6,6 +6,11 @@ out/
 __pycache__/
 *.pyc
 
+# Scratch do depth-loop: evidence de revisão, não é entregável.
+# `.ralph/` NÃO entra aqui de propósito: prd.html e features/*.html são
+# source of truth versionado, não artefato derivado.
+.depth-loop/
+
 # OS / editor
 .DS_Store
 node_modules/

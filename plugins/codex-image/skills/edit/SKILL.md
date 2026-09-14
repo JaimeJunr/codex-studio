@@ -1,15 +1,15 @@
 ---
 name: edit
-description: Edita uma imagem existente via cursor-mcp-bridge → Codex (gpt-image-2), sem API key — trocar fundo, remover/adicionar objeto, mudar cor/estilo, inserir logo/texto, gerar variação a partir de referência. Use quando já existe uma imagem e o usuário quer ALTERÁ-la. Para criar do zero, use a skill generate.
+description: Edita uma imagem existente via polyagent-mcp → Codex (gpt-image-2), sem API key — trocar fundo, remover/adicionar objeto, mudar cor/estilo, inserir logo/texto, gerar variação a partir de referência. Use quando já existe uma imagem e o usuário quer ALTERÁ-la. Para criar do zero, use a skill generate.
 ---
 
-# codex-image:edit — editar imagem keyless via cursor-mcp-bridge → Codex
+# codex-image:edit — editar imagem keyless via polyagent-mcp → Codex
 
-Transforma uma imagem existente via a tool **`generate_image`** do MCP cursor-bridge. **Sem API key.**
+Transforma uma imagem existente via a tool **`generate_image`** do MCP `polyagent`. **Sem API key.**
 
 ## Pré-requisito
 
-MCP cursor-bridge disponível (cursor-mcp-bridge clonado+`npm run build`, `CURSOR_MCP_BRIDGE_DIST` exportado, Codex CLI logado). Se **não** estiver: monte o **prompt de edição** e diga "cole no chatgpt.com/images **junto com a imagem original**". Não trave.
+Servidor MCP `polyagent` configurado globalmente no Claude Code e disponível, com Codex CLI logado. Se **não** estiver: monte o **prompt de edição** e diga "cole no chatgpt.com/images **junto com a imagem original**". Não trave.
 
 ## Fluxo
 
@@ -37,7 +37,7 @@ Chame a tool **`generate_image`** com:
 Se desviou do que devia ficar, **reforce o "Keep:"** e tente de novo, uma mudança por vez.
 
 ### 5. Reportar
-Caminho final no projeto + prompt usado + provedor (cursor-mcp-bridge → Codex built-in). Não afirme perfeição; ofereça 1 ajuste.
+Caminho final no projeto + prompt usado + provedor (polyagent-mcp → Codex built-in). Não afirme perfeição; ofereça 1 ajuste.
 
 ## Nunca
 

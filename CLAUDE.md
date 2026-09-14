@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## O que é
 
-`codex-studio` é um **marketplace de plugins para Claude Code** que adiciona geração visual **keyless** (sem `OPENAI_API_KEY`): imagens, decks `.pptx`, criativos sociais, infográficos e visuais de site. Não é um app — é um catálogo de plugins declarativos (skills em Markdown), com um único script Python executável (`build_pptx.py`). Não há build, test, lint, CI, `package.json` na raiz nem agents/hooks.
+`codex-studio` é um **marketplace de plugins para Claude Code** que adiciona geração visual **keyless** (sem `OPENAI_API_KEY`): imagens, decks `.pptx`, criativos sociais, infográficos e visuais de site. Não é um app — é um catálogo de plugins declarativos (skills em Markdown), com um único script Python executável (`build_pptx.py`). Há uma suíte pytest mínima em `tests/`, configurada em `pyproject.toml`, ainda sem CI. Não há build, lint, `package.json` na raiz nem agents/hooks.
 
 ## Arquitetura
 
@@ -12,13 +12,13 @@ A geração de imagem roteia por um MCP externo, não por API key:
 
 ```
 Claude Code → skill (ex: codex-deck:deck) → codex-image:generate
-   → MCP cursor-bridge / tool generate_image → cursor-mcp-bridge
+   → MCP global polyagent / tool generate_image → polyagent-mcp
    → codex exec → image_gen (gpt-image-2, keyless) → PNG salvo no cwd do projeto
 ```
 
 Três camadas de plugins (todas registradas em `.claude-plugin/marketplace.json`):
 
-1. **Motor** — `codex-image`: única fonte de geração. Declara o MCP em `plugins/codex-image/.mcp.json` (server `cursor-bridge`, `node ${CURSOR_MCP_BRIDGE_DIST}`). Skills `generate` e `edit`.
+1. **Motor** — `codex-image`: única fonte de geração. Usa o servidor MCP `polyagent`, configurado globalmente no Claude Code a partir do projeto `polyagent-mcp`. O plugin não declara MCP próprio; instalar o plugin não registra o servidor. Skills `generate` e `edit`.
 2. **Genéricos** — `codex-deck` (slides→`.pptx`), `codex-social`, `codex-infographic`: delegam toda geração ao motor.
 3. **Especialistas** — `codex-biz`, `codex-study`, `codex-web`: templates de domínio sobre deck/image.
 
@@ -35,13 +35,15 @@ Ao adicionar um **novo estilo** ("e afins"), copie o molde de um especialista: s
 
 `spritekit.py` (Pillow) subcomandos: `pixelate` (downscale nearest + quantize de paleta), `keyout` (chroma/floodfill → alpha), `sheet` (sprite sheet + JSON, `--engine aseprite|unity|godot|texturepacker`), `gif` (GIF animado), `palettes` (catálogo), `setup` (config do Aseprite). Vive só no `codex-sprite` — os especialistas o referenciam por dependência, não duplicam.
 
-**Backend Aseprite (opcional, híbrido)**: `pixelate` roteia quantize+dither pro Aseprite headless quando disponível; senão Pillow. `aseprite_bin()` resolve na ordem `ASEPRITE_PATH` → `~/.config/codex-sprite/config.json` → PATH → auto-detect Steam (`libraryfolders.vdf`). Bibliotecas Steam em disco custom não são catalogadas no `.vdf` → exigem `setup --path` uma vez. Nunca duplicar o `pixelate` no Pillow e no Aseprite: o downscale é sempre Pillow, só o quantize/dither troca de motor.
+**Backend Aseprite (opcional, híbrido)**: `pixelate` roteia quantize+dither pro Aseprite headless quando disponível; senão Pillow. `aseprite_bin()` resolve na ordem `ASEPRITE_PATH` → config → PATH → auto-detect Steam (`libraryfolders.vdf`). Nunca duplicar o `pixelate` no Pillow e no Aseprite: o downscale é sempre Pillow, só o quantize/dither troca de motor.
+
+**Dependência em runtime `codex-sprite` → `codex-image` (envkit.py)**: `spritekit.py` carrega sob demanda `plugins/codex-image/scripts/envkit.py` — módulo compartilhado que resolve o config dir e o `ASEPRITE_PATH`/config/Steam de forma portátil entre Linux/macOS/Windows. Só as etapas **config** e **Steam** da cadeia de resolução dependem dele; **env var** (`ASEPRITE_PATH`) e **PATH** usam só `os.environ`/`shutil.which` e continuam funcionando mesmo sem `codex-image` instalado. Sem `codex-image`: `setup` falha cedo com mensagem amigável (é o único subcomando que *exige* o envkit); `pixelate` degrada silenciosamente as etapas config/Steam e cai pro Pillow se nenhuma das outras duas resolver o binário; os demais subcomandos (`keyout`, `sheet`, `gif`, `walkgen`, `palettes`) nunca tocam config/envkit. Bibliotecas Steam em disco custom não são catalogadas no `.vdf` → exigem `setup --path` uma vez.
 
 **Paletas** (dict `PALETTES` no script, fonte única): db16, db32, pico8, nes, snes, gameboy, gameboy-gray, c64, cga, sweetie16, gray4/8/16. Adicionar paleta = uma entrada no dict (hex sem `#`).
 
 **Slash commands**: `codex-sprite/commands/` → `/codex-sprite:{new,export,setup,palette}`; `codex-pixel/commands/new.md` → `/codex-pixel:new`. Comandos que executam o script vivem no `codex-sprite` (o `${CLAUDE_PLUGIN_ROOT}` resolve o path); comandos de fluxo só disparam a skill.
 
-**Engine de imagem** (`generate_image` param `engine`, no cursor-mcp-bridge): `grok` (keyless via assinatura Grok, modelo grok-4.5-build) sai melhor pra **sprite/pixel art**; `codex` (default, gpt-image-2) melhor pra **retrato/ilustração/cena**. **Animação**: testado — o generate NÃO anima coordenado ("samba"); walk cycle keyless via `spritekit.py walkgen` (deslocamento procedural, mecânico); `image_to_video` do Grok é bloqueado por Zero Data Retention. O forte do generate é o **sprite estático**. Detalhes em `codex-sprite/references/sprites.md`.
+**Engine de imagem** (`generate_image` param `engine`, no polyagent-mcp): `grok` (keyless via assinatura Grok, modelo grok-4.5-build) sai melhor pra **sprite/pixel art**; `codex` (default, gpt-image-2) melhor pra **retrato/ilustração/cena**. **Animação**: testado — o generate NÃO anima coordenado ("samba"); walk cycle keyless via `spritekit.py walkgen` (deslocamento procedural, mecânico); `image_to_video` do Grok é bloqueado por Zero Data Retention. O forte do generate é o **sprite estático**. Detalhes em `codex-sprite/references/sprites.md`.
 
 **Edição/animação avançada (camada 3, geral)**: a skill `codex-sprite:handoff` faz o handoff do sprite gerado pro **[pixel-plugin](https://github.com/willibrandon/pixel-plugin)** (motor `pixel-mcp` + Aseprite, ~50 tools de layers/frames/cels/draw/quantize/export) — o motor geral e reutilizável pra walk cycle real e retoque pixel-a-pixel (opera no documento, não na silhueta; não quebra no próximo sprite). Keyless com o Aseprite do usuário; config em `~/.config/pixel-mcp/config.json`. **Arquitetura de 3 camadas**: (1) GENERATE keyless (Grok/Codex) → (2) spritekit.py glue (keyout/pixelate/paleta/sheet) → (3) pixel-plugin edição/animação. O `pixel-plugin` é instalado **ao lado** do codex-studio (não reimplementar suas 50 tools no spritekit). `walkgen` é atalho procedural, não o motor de animação.
 
@@ -54,7 +56,7 @@ plugins/<nome>/
 └── skills/<skill>/SKILL.md        # frontmatter YAML: name + description
 ```
 
-Extras: `codex-image` tem `.mcp.json`; `codex-deck` tem `scripts/build_pptx.py` e `references/estilos.md` (biblioteca de estilos versionada). Skills são invocadas como `<plugin>:<skill>` (ex: `codex-image:generate`).
+Extras: `codex-image` usa o MCP global `polyagent`, sem `.mcp.json` próprio; `codex-deck` tem `scripts/build_pptx.py` e `references/estilos.md` (biblioteca de estilos versionada). Skills são invocadas como `<plugin>:<skill>` (ex: `codex-image:generate`).
 
 Ao **adicionar um plugin**, registre-o também em `.claude-plugin/marketplace.json` — os dois arquivos (o `plugin.json` local e a entrada no marketplace) precisam existir.
 
@@ -62,7 +64,7 @@ Ao **adicionar um plugin**, registre-o também em `.claude-plugin/marketplace.js
 
 Estas regras estão codificadas nas skills e o script depende delas:
 
-- **Keyless via bridge**: a geração usa a assinatura ChatGPT/Codex do usuário através do `cursor-mcp-bridge`, nunca `OPENAI_API_KEY` direto.
+- **Keyless via bridge**: a geração usa a assinatura ChatGPT/Codex do usuário através do `polyagent-mcp`, nunca `OPENAI_API_KEY` direto.
 - **Degradação graciosa**: se o bridge/Codex não estiver disponível, a skill **não trava** — entrega o prompt pronto e instrui "cole no chatgpt.com/images". Preserve esse comportamento em qualquer skill nova.
 - **`out_path` sempre dentro do cwd do projeto**: o sandbox do bridge só monta o cwd. A tool `generate_image` salva direto no `out_path` e retorna **apenas o caminho** (nunca bytes inline). Uma chamada por asset.
 - **Edição não-destrutiva** (`codex-image:edit`): passe origens em `input_images`, salve em arquivo novo versionado (`-v2`, `-v3`); nunca sobrescreva o original.
@@ -78,7 +80,23 @@ python "${CLAUDE_PLUGIN_ROOT}/scripts/build_pptx.py" <projeto> --size 16:9|4:3|9
 
 Lê `<projeto>/origin_image/*.png` (ordenados naturalmente) + `speech.md` opcional (vira notas) e gera `<projeto>/<nome>.pptx`.
 
+Rodar a suíte de testes (requer pytest e Pillow — `spritekit.py` sai com
+`sys.exit` no import se Pillow faltar, o que quebra a *coleta*, não só os
+testes dele):
+
+```
+pip install pytest Pillow
+python -m pytest
+```
+
+`[dependency-groups]` em `pyproject.toml` documenta a intenção (PEP 735) mas
+é decorativo neste ambiente: pip 24.0 não tem `--group` (só a partir do
+25.1) e pytest não lê `[dependency-groups]` sozinho — instale manualmente
+como acima.
+
+A suíte verifica que nenhuma referência ao nome antigo do bridge permanece no repositório, respeitando as exclusões definidas no teste.
+
 ## Pré-requisitos externos (não vivem neste repo)
 
-- `cursor-mcp-bridge` clonado, `npm run build`, e `CURSOR_MCP_BRIDGE_DIST` apontando para `dist/index.js`.
+- Servidor MCP `polyagent` configurado globalmente no Claude Code: clonar `polyagent-mcp`, executar `npm install` e `npm run build`, e registrar `node /caminho/absoluto/para/polyagent-mcp/dist/index.js` no escopo `user` (comando completo no README).
 - Codex CLI no PATH e logado.

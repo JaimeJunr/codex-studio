@@ -12,9 +12,9 @@
     {
       "name": "codex-image",
       "source": "./plugins/codex-image",
-      "description": "Motor: gera e edita imagem via cursor-mcp-bridge (tool generate_image) → codex exec + image_gen / gpt-image-2 — SEM API key, usa sua assinatura ChatGPT/Codex. Base dos outros plugins.",
+      "description": "Motor: gera e edita imagem via polyagent-mcp (tool generate_image) → codex exec + image_gen / gpt-image-2 — SEM API key, usa sua assinatura ChatGPT/Codex. Base dos outros plugins.",
       "version": "0.1.0",
-      "keywords": ["image", "codex", "keyless", "gpt-image", "cursor-mcp-bridge"]
+      "keywords": ["image", "codex", "keyless", "gpt-image", "polyagent-mcp"]
     },
     {
       "name": "codex-deck",
