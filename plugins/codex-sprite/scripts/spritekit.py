@@ -19,8 +19,13 @@ Uso:
     python spritekit.py palettes [--show NAME]
     python spritekit.py setup [--path P | --detect]
 
-Pillow-only (Aseprite e backend opcional de quantize). Parte do plugin
-codex-sprite (Claude Code).
+Pillow-only (Aseprite e backend opcional de quantize). `setup` le/escreve
+config via envkit.py (modulo compartilhado do plugin codex-image) e exige-o
+instalado, falhando cedo se faltar. `pixelate` tambem passa por config/envkit
+ao resolver o Aseprite (etapas env var/PATH da cadeia nao dependem disso), mas
+degrada sozinho pro Pillow se o codex-image nao estiver instalado — nunca
+falha por causa disso. Os demais subcomandos nunca tocam config/envkit. Parte
+do plugin codex-sprite (Claude Code).
 
 walkgen: ciclo de caminhada top-down PROCEDURAL a partir de um sprite estatico
 (desloca pernas/corpo por codigo — ritmo deterministico, sem IA). Fisica de
@@ -30,6 +35,7 @@ marcha por fase (stance + swing em arco + bob do corpo); banda inferior
 Requer: Pillow  ->  pip install Pillow
 """
 import argparse
+import importlib.util
 import json
 import math
 import os
@@ -44,6 +50,82 @@ try:
     from PIL import Image, ImageDraw, ImageFilter
 except ImportError:
     sys.exit("Falta Pillow. Rode: pip install Pillow")
+
+# Nomes de app usados na resolucao de config (ver envkit.migrate_legacy_config).
+APP_NAME = "codex-sprite"
+LEGACY_APP_NAMES = ["codex-sprite"]  # lista, nao nome fixo: projeto sera renomeado em breve
+
+
+class EnvkitUnavailableError(RuntimeError):
+    """Levantada quando envkit.py (modulo compartilhado do codex-image) nao
+    e localizavel. Nunca sys.exit aqui: isso mataria qualquer import ou
+    coleta de teste que passe por _discover_envkit; quem decide encerrar o
+    processo com mensagem amigavel e main()."""
+
+
+def _discover_envkit():
+    """Localiza envkit.py (modulo compartilhado do codex-image) subindo a
+    arvore de diretorios a partir deste arquivo ate a raiz do repo; fallback
+    para plugins instalados (~/.claude/plugins/**/codex-image/scripts/
+    envkit.py, maior versao). Nao achou -> levanta EnvkitUnavailableError
+    (main() converte em mensagem clara em vez de stack trace cru)."""
+    here = Path(__file__).resolve()
+    for parent in here.parents:
+        candidate = parent / "plugins" / "codex-image" / "scripts" / "envkit.py"
+        if candidate.is_file():
+            return candidate
+        if (parent / ".claude-plugin" / "marketplace.json").is_file():
+            break  # raiz do repo atingida, nao adianta subir mais
+
+    installed_root = Path.home() / ".claude" / "plugins"
+    candidates = sorted(
+        installed_root.glob("**/codex-image/scripts/envkit.py"),
+        key=_envkit_plugin_version,
+    )
+    if candidates:
+        return candidates[-1]
+
+    raise EnvkitUnavailableError(
+        "envkit.py nao encontrado: o plugin codex-image precisa estar "
+        "instalado (ele fornece o modulo compartilhado de resolucao de "
+        "ambiente entre Linux/macOS/Windows). Instale codex-image e "
+        "tente novamente."
+    )
+
+
+def _envkit_plugin_version(envkit_path):
+    """Le a versao do plugin.json ao lado do envkit.py candidato (pra
+    escolher a maior versao entre plugins instalados); 0.0.0 se ausente ou
+    invalido."""
+    plugin_json = envkit_path.parent.parent / ".claude-plugin" / "plugin.json"
+    try:
+        data = json.loads(plugin_json.read_text(encoding="utf-8"))
+        version = str(data.get("version", "0.0.0"))
+    except (OSError, ValueError, json.JSONDecodeError):
+        version = "0.0.0"
+    return _version_sort_key(version)
+
+
+def _version_sort_key(version):
+    """Chave de ordenacao para string de versao tipo semver ("v1.2.3" ou
+    "1.2.3"). Cada segmento vira uma tupla (0, int) ou (1, str) — nunca int
+    puro nem str pura — pra sorted() nunca comparar int com str quando
+    formatos coexistem entre plugins instalados (ex.: "1.0.0" vs
+    "1.0.beta"), o que levantaria TypeError."""
+    version = version[1:] if version[:1] in ("v", "V") else version
+    return tuple(
+        (0, int(seg)) if seg.isdigit() else (1, seg)
+        for seg in version.split(".")
+    )
+
+
+def _load_envkit():
+    """Carrega o modulo envkit via importlib a partir do path descoberto."""
+    module_path = _discover_envkit()
+    spec = importlib.util.spec_from_file_location("envkit", module_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 # Catalogo de paletas fixas (hex RGB, sem #).
 PALETTES = {
@@ -147,38 +229,38 @@ def parse_hex_color(s: str):
         sys.exit(f"Cor hex invalida: {s!r}")
 
 
+# Modulo compartilhado (config dir + resolucao de binario portateis entre
+# SOs), carregado sob demanda por _ensure_env() — nunca no import (efeito
+# colateral de disco pertence a main(), ver EnvkitUnavailableError acima).
+envkit = None
+
+
+def _ensure_env():
+    """Carrega envkit (uma vez, memoizado) e migra config de nomes legados.
+    Chamada no comeco de main(); tambem chamada de forma preguicosa pelas
+    funcoes de config/aseprite abaixo, pra continuar funcionando em quem as
+    chame direto (testes, outros scripts) sem passar por main()."""
+    global envkit
+    if envkit is None:
+        loaded = _load_envkit()
+        loaded.migrate_legacy_config(APP_NAME, LEGACY_APP_NAMES)
+        envkit = loaded  # so publica o global depois da migracao ter sucesso
+    return envkit
+
+
 def config_path():
     """Retorna path do arquivo de config do codex-sprite."""
-    return Path.home() / ".config" / "codex-sprite" / "config.json"
+    return _ensure_env().config_path(APP_NAME)
 
 
 def load_config():
     """Carrega config JSON; tolera arquivo ausente ou corrompido."""
-    try:
-        cfg_file = config_path()
-        if cfg_file.is_file():
-            return json.loads(cfg_file.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError, ValueError):
-        pass
-    return {}
+    return _ensure_env().load_config(APP_NAME)
 
 
 def save_config(data):
     """Mescla e persiste chaves no config JSON."""
-    cfg_file = config_path()
-    cfg_file.parent.mkdir(parents=True, exist_ok=True)
-    merged = load_config()
-    merged.update(data)
-    cfg_file.write_text(json.dumps(merged, indent=2) + "\n", encoding="utf-8")
-
-
-def _is_executable(path):
-    """True se path e um arquivo executavel."""
-    try:
-        p = Path(path).expanduser()
-        return p.is_file() and os.access(p, os.X_OK)
-    except OSError:
-        return False
+    _ensure_env().save_config(APP_NAME, data)
 
 
 _ASEPRITE_REL_PATHS = (
@@ -187,91 +269,45 @@ _ASEPRITE_REL_PATHS = (
     "steamapps/common/Aseprite/Aseprite.exe",
 )
 
-_STEAM_ROOT_CANDIDATES = (
-    Path.home() / ".steam" / "steam",
-    Path.home() / ".steam" / "root",
-    Path.home() / ".local" / "share" / "Steam",
-    Path.home()
-    / ".var"
-    / "app"
-    / "com.valvesoftware.Steam"
-    / ".local"
-    / "share"
-    / "Steam",
-    Path.home() / "Library" / "Application Support" / "Steam",
-    Path("C:/Program Files (x86)/Steam"),
-)
 
-_LIBRARYFOLDERS_VDF = (
-    "steamapps/libraryfolders.vdf",
-    "config/libraryfolders.vdf",
-)
+def _steam_aseprite_candidates():
+    """Candidatos a binario Aseprite dentro de instalacoes Steam conhecidas
+    (raizes resolvidas pelo envkit, incluindo libraryfolders.vdf).
 
-
-def _parse_steam_library_paths(vdf_text):
-    """Extrai paths de libraryfolders.vdf via regex."""
-    paths = []
-    for raw in re.findall(r'"path"\s*"([^"]+)"', vdf_text):
-        p = raw.replace("\\\\", "\\").replace("//", "/")
-        paths.append(p)
-    return paths
-
-
-def _collect_steam_roots():
-    """Monta lista de raizes Steam (defaults + libraryfolders.vdf)."""
-    roots = []
-    seen = set()
+    Generator, nao lista: o scan de Steam (~10 raizes candidatas, resolve()
+    em cada, parse de libraryfolders.vdf) e o passo mais caro da cadeia de
+    resolve_binary e so deve rodar se env/config/PATH falharem antes dele —
+    resolve_binary consome isto com `for candidate in known_locations`, que
+    aceita iteravel preguicoso sem mudanca do lado dele."""
     try:
-        for candidate in _STEAM_ROOT_CANDIDATES:
-            try:
-                resolved = candidate.expanduser().resolve()
-            except OSError:
-                continue
-            key = str(resolved)
-            if resolved.is_dir() and key not in seen:
-                seen.add(key)
-                roots.append(resolved)
-
-        idx = 0
-        while idx < len(roots):
-            root = roots[idx]
-            idx += 1
-            for rel in _LIBRARYFOLDERS_VDF:
-                vdf = root / rel
-                try:
-                    if not vdf.is_file():
-                        continue
-                    text = vdf.read_text(encoding="utf-8", errors="ignore")
-                except OSError:
-                    continue
-                for lib_path in _parse_steam_library_paths(text):
-                    try:
-                        lib_root = Path(lib_path).expanduser().resolve()
-                    except OSError:
-                        continue
-                    key = str(lib_root)
-                    if lib_root.is_dir() and key not in seen:
-                        seen.add(key)
-                        roots.append(lib_root)
-    except Exception:
-        pass
-    return roots
+        roots = _ensure_env().steam_roots()
+    except EnvkitUnavailableError:
+        return
+    for root in roots:
+        for rel in _ASEPRITE_REL_PATHS:
+            yield root / rel
 
 
-def _detect_steam_aseprite():
-    """Auto-detecta binario Aseprite instalado via Steam."""
+def _is_executable(path):
+    """True se path e um arquivo executavel. Copia local e deliberada do
+    mesmo teste em envkit.py: usada pelas etapas env/PATH de resolve_aseprite,
+    que nao podem depender do envkit (ver docstring de resolve_aseprite)."""
     try:
-        for root in _collect_steam_roots():
-            for rel in _ASEPRITE_REL_PATHS:
-                try:
-                    candidate = (root / rel).resolve()
-                except OSError:
-                    continue
-                if _is_executable(candidate):
-                    return str(candidate)
-    except Exception:
-        pass
-    return None
+        p = Path(path).expanduser()
+        return p.is_file() and os.access(p, os.X_OK)
+    except OSError:
+        return False
+
+
+def _config_aseprite_path():
+    """Le aseprite_path do config do usuario via envkit; None se o envkit
+    nao estiver instalado. Etapa isolada pra que a ausencia do codex-image
+    derrube so o passo 'config' da cadeia, nunca env/PATH (ver
+    resolve_aseprite)."""
+    try:
+        return load_config().get("aseprite_path")
+    except EnvkitUnavailableError:
+        return None
 
 
 def resolve_aseprite(
@@ -280,28 +316,32 @@ def resolve_aseprite(
     include_path=True,
     include_steam=True,
 ):
-    """Retorna (path, fonte) ou (None, None). Fonte: env|config|PATH|steam."""
-    try:
-        if include_env_config:
-            env_path = os.environ.get("ASEPRITE_PATH")
-            if env_path and _is_executable(env_path):
-                return env_path, "env"
+    """Retorna (path, fonte) ou (None, None). Fonte: env|config|PATH|steam.
 
-            cfg_path = load_config().get("aseprite_path")
-            if cfg_path and _is_executable(cfg_path):
-                return cfg_path, "config"
+    Cadeia env var -> config -> PATH -> locais conhecidos (steam). As etapas
+    env var e PATH usam so os.environ/shutil.which (nunca o envkit) e por
+    isso continuam funcionando sem o plugin codex-image instalado; so config
+    e steam precisam do envkit (config dir e steam roots sao portateis entre
+    SOs) e degradam sozinhas, sem interromper a cadeia, quando ele falta."""
+    if include_env_config:
+        env_path = os.environ.get("ASEPRITE_PATH")
+        if env_path and _is_executable(env_path):
+            return env_path, "env"
 
-        if include_path:
-            which_path = shutil.which("aseprite")
-            if which_path and _is_executable(which_path):
-                return which_path, "PATH"
+        config_path_value = _config_aseprite_path()
+        if config_path_value and _is_executable(config_path_value):
+            return config_path_value, "config"
 
-        if include_steam:
-            steam_path = _detect_steam_aseprite()
-            if steam_path:
-                return steam_path, "steam"
-    except Exception:
-        pass
+    if include_path:
+        which_path = shutil.which("aseprite")
+        if which_path and _is_executable(which_path):
+            return which_path, "PATH"
+
+    if include_steam:
+        for candidate in _steam_aseprite_candidates():
+            if _is_executable(candidate):
+                return str(candidate), "steam"
+
     return None, None
 
 
@@ -333,7 +373,18 @@ def _setup_hint():
 
 
 def cmd_setup(args):
-    """Configura ou mostra resolucao do binario Aseprite."""
+    """Configura ou mostra resolucao do binario Aseprite.
+
+    Unico subcomando que exige envkit de forma dura: le/escreve config, entao
+    falha cedo com mensagem amigavel (nao traceback) se o codex-image nao
+    estiver instalado. `pixelate` tambem le config (via resolve_aseprite),
+    mas so pra tentar o backend Aseprite — degrada pro Pillow sem falhar se
+    o envkit faltar. Os demais subcomandos nunca leem config."""
+    try:
+        _ensure_env()
+    except EnvkitUnavailableError as exc:
+        sys.exit(str(exc))
+
     if args.path:
         ok, output = _validate_aseprite(args.path)
         if not ok:
