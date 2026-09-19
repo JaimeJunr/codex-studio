@@ -1,9 +1,0 @@
-{
-  "mcpServers": {
-    "cursor-bridge": {
-      "command": "node",
-      "args": ["${CURSOR_MCP_BRIDGE_DIST}"],
-      "_comment": "Motor de imagem via cursor-mcp-bridge (tool generate_image → codex exec + image_gen / gpt-image-2, keyless). Exporte CURSOR_MCP_BRIDGE_DIST=/caminho/para/cursor-mcp-bridge/dist/index.js (rode `npm run build` no bridge antes). Requer Codex CLI logado."
-    }
-  }
-}

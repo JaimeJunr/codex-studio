@@ -1,11 +1,11 @@
 ---
 name: generate
-description: Gera imagem (bitmap) dentro do Claude Code via cursor-mcp-bridge → Codex (gpt-image-2), sem API key. Use quando o usuário quer CRIAR uma imagem nova — foto, ilustração, mockup, capa, textura, slide-imagem. Salva no projeto via out_path. Para EDITAR imagem existente, use a skill edit. Para vetor/HTML/CSS, não use esta skill.
+description: Gera imagem (bitmap) dentro do Claude Code via polyagent-mcp → Codex (gpt-image-2), sem API key. Use quando o usuário quer CRIAR uma imagem nova — foto, ilustração, mockup, capa, textura, slide-imagem. Salva no projeto via out_path. Para EDITAR imagem existente, use a skill edit. Para vetor/HTML/CSS, não use esta skill.
 ---
 
-# codex-image:generate — gerar imagem keyless via cursor-mcp-bridge → Codex
+# codex-image:generate — gerar imagem keyless via polyagent-mcp → Codex
 
-Cria imagem bitmap via a tool **`generate_image`** do MCP cursor-bridge (`image_gen` / gpt-image-2). **Sem API key** — usa a assinatura ChatGPT/Codex do usuário. A tool já faz generate-then-move e devolve **só o caminho do PNG salvo** (nunca bytes inline).
+Cria imagem bitmap via a tool **`generate_image`** do MCP `polyagent` (`image_gen` / gpt-image-2). **Sem API key** — usa a assinatura ChatGPT/Codex do usuário. A tool já faz generate-then-move e devolve **só o caminho do PNG salvo** (nunca bytes inline).
 
 ## Quando usar / não usar
 
@@ -14,8 +14,9 @@ Cria imagem bitmap via a tool **`generate_image`** do MCP cursor-bridge (`image_
 
 ## Pré-requisito
 
-MCP cursor-bridge disponível (cursor-mcp-bridge clonado+`npm run build`, `CURSOR_MCP_BRIDGE_DIST` exportado, Codex CLI logado). Se **não** estiver:
-- Não trave. Gere o **prompt pronto** e diga: "cole no chatgpt.com/images". Informe que instalar o bridge + logar o Codex CLI destrava a geração automática.
+Servidor MCP `polyagent` configurado globalmente no Claude Code e disponível, com Codex CLI logado. Se **não** estiver:
+
+- Não trave. Gere o **prompt pronto** e diga: "cole no chatgpt.com/images". Informe que configurar o servidor MCP `polyagent` globalmente + logar o Codex CLI destrava a geração automática.
 
 ## Fluxo
 
@@ -45,7 +46,7 @@ O `out_path` **deve** ficar dentro do cwd do projeto (o sandbox do bridge só mo
 Inspecione: sujeito, estilo, composição, **precisão do texto**, itens a evitar. Ajuste com **uma** mudança alvo e re-cheque — não empilhe 5 mudanças num prompt.
 
 ### 5. Reportar
-Sempre informe: **caminho final salvo no projeto**, o **prompt final**, e que foi via **cursor-mcp-bridge → Codex built-in** (keyless). Lote = uma chamada por asset.
+Sempre informe: **caminho final salvo no projeto**, o **prompt final**, e que foi via **polyagent-mcp → Codex built-in** (keyless). Lote = uma chamada por asset.
 
 ## Nunca
 

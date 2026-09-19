@@ -2,7 +2,7 @@
 
 **Superpoder visual keyless para o Claude Code, via Codex.**
 
-O Claude Code não gera pixel. O `codex-studio` resolve isso ligando o Claude Code ao **Codex** (`image_gen` / gpt-image-2) pelo **[cursor-mcp-bridge](https://github.com/JaimeJunr/cursor-mcp-bridge)** — que gera e edita imagem usando a **sua assinatura ChatGPT/Codex, sem API key**. Em cima disso, entrega skills para **decks/PowerPoint, criativos sociais, infográficos e visuais de site** — genéricos o suficiente pra qualquer coisa (trabalho, documento, aula, site) e com pacotes especialistas quando você quer resultado pronto de um domínio.
+O Claude Code não gera pixel. O `codex-studio` resolve isso ligando o Claude Code ao **Codex** (`image_gen` / gpt-image-2) pelo **[polyagent-mcp](https://github.com/JaimeJunr/polyagent-mcp)** — que gera e edita imagem usando a **sua assinatura ChatGPT/Codex, sem API key**. Em cima disso, entrega skills para **decks/PowerPoint, criativos sociais, infográficos e visuais de site** — genéricos o suficiente pra qualquer coisa (trabalho, documento, aula, site) e com pacotes especialistas quando você quer resultado pronto de um domínio.
 
 ## Por que
 
@@ -14,11 +14,25 @@ O Claude Code não gera pixel. O `codex-studio` resolve isso ligando o Claude Co
 ## Pré-requisitos
 
 - **Claude Code** (com suporte a plugins/marketplace).
-- **[cursor-mcp-bridge](https://github.com/JaimeJunr/cursor-mcp-bridge)** clonado e buildado (`npm install && npm run build`); exporte `CURSOR_MCP_BRIDGE_DIST=/caminho/para/cursor-mcp-bridge/dist/index.js`.
+- Servidor MCP **`polyagent`** configurado globalmente no Claude Code (veja abaixo), usando o projeto **[polyagent-mcp](https://github.com/JaimeJunr/polyagent-mcp)**.
 - **Codex CLI** instalado e logado (`codex` no PATH) — o bridge chama `codex exec` + `image_gen` (gpt-image-2, keyless).
 - **Python 3** + `python-pptx` (só pro `codex-deck` montar `.pptx`): `pip install python-pptx`.
 
 ## Instalação
+
+Instalar o plugin **não instala nem registra o MCP**. Configure o servidor MCP `polyagent` globalmente uma vez, fora deste repo. No terminal, escolha uma pasta permanente para o clone e execute:
+
+```sh
+git clone https://github.com/JaimeJunr/polyagent-mcp.git
+cd polyagent-mcp
+npm install
+npm run build
+claude mcp add --scope user --transport stdio polyagent -- node "$(pwd)/dist/index.js"
+```
+
+O comando registra o servidor na configuração MCP do Claude Code no escopo `user`, disponível em todos os projetos. Mantenha o clone nesse caminho. Reinicie o Claude Code e confira o servidor `polyagent` em `/mcp`; a tool de imagem resolve como `mcp__polyagent__generate_image`. O Codex CLI deve estar instalado e logado para a geração keyless.
+
+Depois, no Claude Code:
 
 ```
 /plugin marketplace add JaimeJunr/codex-studio
@@ -41,7 +55,7 @@ Um comando por linha (o Claude Code interpreta slash line-by-line).
 
 | Plugin | Camada | O que faz |
 |---|---|---|
-| **codex-image** | motor | Gera/edita imagem via cursor-mcp-bridge → Codex (gpt-image-2, keyless). `out_path` no projeto, texto PT-BR na imagem. Base dos demais. |
+| **codex-image** | motor | Gera/edita imagem via polyagent-mcp → Codex (gpt-image-2, keyless). `out_path` no projeto, texto PT-BR na imagem. Base dos demais. |
 | **codex-deck** | genérico | Deck genérico → slides-imagem → `.pptx`. Trabalho, documento, relatório, aula. |
 | **codex-social** | genérico | Capa de carrossel, story/reel, quote card, criativo de anúncio. |
 | **codex-infographic** | genérico | Número/dado → slide infográfico. |
@@ -59,7 +73,7 @@ Um comando por linha (o Claude Code interpreta slash line-by-line).
 Claude Code
    │  usa skill (ex: codex-deck:deck → codex-image:generate)
    ▼
-codex-image  ──(MCP cursor-bridge / generate_image)──►  cursor-mcp-bridge
+codex-image  ──(MCP global polyagent / generate_image)──►  polyagent-mcp
                                                            │
                                                            ▼
                                                      codex exec  ──►  image_gen (gpt-image-2, keyless)
@@ -73,7 +87,7 @@ Princípios herdados do `image_gen` oficial do Codex e da comunidade: **built-in
 ## Créditos e inspiração
 
 - Codex `image_gen` / [imagegen SKILL oficial](https://github.com/openai/codex/blob/main/codex-rs/skills/src/assets/samples/imagegen/SKILL.md)
-- [cursor-mcp-bridge](https://github.com/JaimeJunr/cursor-mcp-bridge) (transporte MCP → `codex exec` + `image_gen`)
+- [polyagent-mcp](https://github.com/JaimeJunr/polyagent-mcp) (transporte MCP → `codex exec` + `image_gen`)
 - [codex-ppt-skill](https://github.com/ningzimu/codex-ppt-skill) (fluxo de PPT como imagens-slide)
 - [Claude Code Plugins reference](https://code.claude.com/docs/en/plugins-reference)
 

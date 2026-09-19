@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Feature — Multi-engine consciente</title>
+<style>
+/* Tokens de produto do ivt-ui-brand (ivt-lib/src/globals.css). Cole este bloco inteiro. */
+:root {
+  --background:#FFFFFF; --foreground:#18181B; --card:#FFFFFF; --soft:#FAFAFA;
+  --accent:#ECFEFF; --accent-foreground:#18181B;
+  --primary:#3B8091; --primary-foreground:#FAFAFA; --secondary:#F4F4F5;
+  --muted-foreground:#71717A; --border:#E4E4E7; --input:#E4E4E7; --ring:#3F3F46;
+  --destructive:#DC2626; --destructive-foreground:#FEF2F2;
+  --positive:#16A34A; --positive-foreground:#F0FDF4;
+  --warning:#EA580C; --warning-foreground:#FFF7ED;
+  --info:#2563EB; --info-foreground:#EFF6FF;
+  --content-high:#0F172A; --content-medium:#334155;
+  --chart-1:#2a9d90; --chart-2:#E76E50; --chart-3:#274754; --chart-4:#e8c468; --chart-5:#f4a462;
+  --page-bg:#EEF2F6;
+  --radius-sm:6px; --radius-md:10px; --radius-lg:14px;
+  /* Tons derivados — usados só como borda/tint em callouts e severidade (nunca cor de marca) */
+  --tint-purple:#7c3aed; --tint-purple-bg:#f1ebfc; --tint-info-border:#bfdbfe; --tint-info-fg:#1e3a5f;
+  --tint-danger-border:#fecaca; --tint-danger-fg:#7f1d1d; --tint-primary-border:#a5eef0; --tint-primary-fg:#134e4a;
+  --tint-warning-border:#f3ceb2; --tint-warning-fg:#9a3f12;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; }
+body {
+  background:var(--page-bg); color:var(--foreground);
+  font-family:'Lato',-apple-system,'Segoe UI',sans-serif; font-size:16px; line-height:1.6;
+}
+.mono { font-family:'IBM Plex Mono',ui-monospace,monospace; }
+.shell { display:grid; grid-template-columns:248px minmax(0,760px); gap:32px; max-width:1100px; margin:0 auto; padding:40px 24px 96px; align-items:start; }
+
+/* ---------- Sidebar (dashboard) ---------- */
+.sidebar { position:sticky; top:24px; display:flex; flex-direction:column; gap:20px; }
+.brandmark { display:flex; align-items:center; gap:10px; }
+.brandmark .sq { width:28px; height:28px; border-radius:var(--radius-sm); background:var(--primary); color:var(--primary-foreground); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14.5px; }
+.brandmark .eyebrow { font-size:12.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted-foreground); font-weight:700; }
+
+.tier-badge { display:inline-flex; align-items:center; gap:6px; align-self:flex-start; padding:4px 11px; border-radius:999px; background:var(--primary); color:var(--primary-foreground); font-size:13px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; }
+
+nav.toc { display:flex; flex-direction:column; gap:2px; padding:12px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+nav.toc a { display:flex; align-items:center; gap:10px; padding:7px 8px; border-radius:var(--radius-sm); color:var(--content-medium); font-size:14.5px; font-weight:600; text-decoration:none; border-left:2px solid transparent; }
+nav.toc a:hover, nav.toc a:focus-visible { background:var(--accent); color:var(--primary); border-left-color:var(--primary); }
+nav.toc a:focus-visible { outline:2px solid var(--ring); outline-offset:-2px; }
+nav.toc a .mark { width:18px; height:18px; border-radius:5px; background:var(--accent); color:var(--primary); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; flex-shrink:0; }
+
+.stat-stack { display:flex; flex-direction:column; gap:8px; }
+.stat-card { padding:11px 12px; background:var(--card); border:1px solid var(--border); border-radius:var(--radius-md); }
+.stat-card .label { font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted-foreground); font-weight:700; }
+.stat-card .value { font-variant-numeric:tabular-nums; font-size:22px; font-weight:800; color:var(--content-high); margin-top:2px; }
+.stat-card .sub { font-size:13px; color:var(--muted-foreground); margin-top:1px; }
+.bar { display:flex; gap:3px; margin-top:8px; height:6px; }
+.bar i { flex:1; border-radius:3px; background:var(--border); display:block; }
+.bar i.on { background:var(--positive); }
+.bar i.off { background:var(--destructive); }
+
+.approval-pill { display:flex; align-items:center; gap:8px; padding:9px 12px; border-radius:var(--radius-md); background:var(--warning-foreground); border:1px solid var(--tint-warning-border); }
+.approval-pill .dot { width:8px; height:8px; border-radius:50%; background:var(--warning); flex-shrink:0; }
+.approval-pill span.txt { font-size:14px; font-weight:700; color:var(--tint-warning-fg); }
+
+.timebox { display:flex; gap:8px; align-items:flex-start; padding:10px 12px; border-radius:var(--radius-md); background:var(--soft); border:1px solid var(--border); font-size:13.5px; color:var(--content-medium); }
+.timebox .ico { flex-shrink:0; color:var(--muted-foreground); font-weight:800; }
+
+/* ---------- Main column ---------- */
+main { display:flex; flex-direction:column; gap:24px; min-width:0; }
+.doc-header h1 { font-size:30px; font-weight:800; color:var(--content-high); letter-spacing:-.01em; text-wrap:balance; }
+.doc-header p.dek { margin-top:6px; font-size:15.5px; color:var(--muted-foreground); max-width:62ch; }
+
+.card { background:var(--card); border:1px solid var(--border); border-top:3px solid var(--primary); border-radius:var(--radius-lg); padding:24px; }
+.section-head { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+.section-head .letter { width:34px; height:34px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:17px; flex-shrink:0; background:var(--accent); color:var(--primary); }
+.section-head h2 { font-size:19px; font-weight:800; color:var(--content-high); }
+.section-head .count { margin-left:auto; font-size:13px; color:var(--muted-foreground); font-variant-numeric:tabular-nums; }
+
+.card > .body { max-width:66ch; color:var(--content-medium); }
+.card h3 { font-size:14px; font-weight:800; letter-spacing:.03em; text-transform:uppercase; color:var(--muted-foreground); margin:18px 0 8px; }
+.card h3:first-of-type { margin-top:16px; }
+
+.chip-row { display:flex; flex-wrap:wrap; gap:8px; }
+.chip { display:inline-flex; align-items:center; gap:6px; padding:5px 10px; border-radius:999px; background:var(--secondary); color:var(--content-medium); font-size:13.5px; font-weight:600; }
+
+/* User story cards */
+.user-story { border:1px solid var(--border); border-radius:var(--radius-md); padding:14px 16px; margin:0 0 10px; background:var(--soft); }
+.user-story:last-child { margin-bottom:0; }
+.us-head { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:6px; }
+.us-id { font-size:12.5px; font-weight:800; padding:3px 8px; border-radius:6px; background:var(--content-high); color:var(--primary-foreground); letter-spacing:.02em; }
+.badge { display:inline-flex; align-items:center; gap:5px; font-size:12.5px; font-weight:700; padding:3px 9px; border-radius:999px; letter-spacing:.01em; }
+.badge .dot { width:6px; height:6px; border-radius:50%; }
+.badge-ready { background:var(--positive-foreground); color:var(--positive); }
+.badge-ready .dot { background:var(--positive); }
+.badge-blocked { background:var(--warning-foreground); color:var(--warning); }
+.badge-blocked .dot { background:var(--warning); }
+.badge-repo { background:var(--secondary); color:var(--muted-foreground); font-weight:600; }
+.user-story > p.story-text { font-size:15.5px; color:var(--content-high); font-weight:600; margin-bottom:8px; }
+.user-story .ac { list-style:none; display:flex; flex-direction:column; gap:5px; }
+.user-story .ac li { display:flex; gap:8px; font-size:14px; color:var(--content-medium); align-items:flex-start; }
+.user-story .ac li::before { content:"✓"; color:var(--positive); font-weight:800; flex-shrink:0; margin-top:1px; }
+
+/* Requirements checklist */
+.req-checklist { list-style:none; display:flex; flex-direction:column; gap:6px; margin-top:4px; }
+.rc { display:flex; gap:10px; align-items:flex-start; padding:9px 12px; border-radius:var(--radius-sm); font-size:14.5px; background:var(--soft); border:1px solid var(--border); }
+.rc .mark { flex-shrink:0; width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12.5px; font-weight:800; margin-top:1px; }
+.rc-pass .mark { background:var(--positive-foreground); color:var(--positive); }
+.rc-fail .mark { background:var(--destructive-foreground); color:var(--destructive); }
+.rc-pass { color:var(--content-medium); }
+.rc-fail { color:var(--content-high); font-weight:600; }
+
+/* Open questions */
+.open-questions { list-style:none; display:flex; flex-direction:column; gap:6px; margin-top:4px; }
+.oq { display:flex; gap:10px; align-items:flex-start; padding:10px 12px; border-radius:0 var(--radius-sm) var(--radius-sm) 0; border-left:3px solid var(--border); background:var(--soft); font-size:14.5px; color:var(--content-medium); }
+.oq .pill { flex-shrink:0; font-family:'IBM Plex Mono',monospace; font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:2px 7px; border-radius:5px; margin-top:1px; }
+.oq-answered { border-left-color:var(--positive); }
+.oq-answered .pill { background:var(--positive-foreground); color:var(--positive); }
+.oq-po { border-left-color:var(--info); }
+.oq-po .pill { background:var(--info-foreground); color:var(--info); }
+.oq-se { border-left-color:var(--tint-purple); }
+.oq-se .pill { background:var(--tint-purple-bg); color:var(--tint-purple); }
+.oq-parked { border-left-color:var(--warning); }
+.oq-parked .pill { background:var(--warning-foreground); color:var(--warning); }
+
+/* Callouts */
+.callout { display:flex; gap:10px; padding:13px 15px; border-radius:var(--radius-md); border:1px solid transparent; font-size:14.5px; }
+.callout .ico { flex-shrink:0; width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13.5px; font-weight:800; margin-top:1px; }
+.callout ul { margin:0; padding-left:16px; }
+.callout-assumption { background:var(--info-foreground); border-color:var(--tint-info-border); color:var(--tint-info-fg); }
+.callout-assumption .ico { background:var(--info-foreground); color:var(--info); }
+.callout-risk { background:var(--destructive-foreground); border-color:var(--tint-danger-border); color:var(--tint-danger-fg); }
+.callout-risk .ico { background:var(--destructive-foreground); color:var(--destructive); }
+.callout-decision { background:var(--accent); border-color:var(--tint-primary-border); color:var(--tint-primary-fg); }
+.callout-decision .ico { background:var(--accent); color:var(--primary); }
+
+.verify-box { background:var(--content-high); color:var(--border); border-radius:var(--radius-md); padding:14px 16px; font-size:14px; font-family:'IBM Plex Mono',monospace; overflow-x:auto; }
+
+@media (max-width:760px) {
+  .shell { grid-template-columns:1fr; }
+  .sidebar { position:static; }
+}
+</style>
+<style>
+.shell { display:block; max-width:860px; margin:0 auto; padding:40px 24px 96px; }
+</style>
+</head>
+<body>
+<div class="shell">
+<main>
+  <div class="doc-header">
+    <p class="dek"><a href="../prd.html">← Studio multi-engine, portátil e achável</a> · Feature 1 de 3 · Must</p>
+    <h1>Multi-engine consciente</h1>
+  </div>
+
+  <section class="card">
+    <div class="section-head"><h2>Feature Overview</h2></div>
+    <div class="body">
+      <p>O motor de imagem passa a conhecer os motores que roteia. Hoje o parâmetro <code class="mono">engine</code> existe no <code class="mono">generate_image</code> do bridge, mas nenhuma das duas skills de <code class="mono">codex-image</code> o declara; a escolha Grok×Codex vive como prosa em quatro arquivos downstream que podem divergir. Esta feature move a regra para o dono dela, torna a escolha visível ao usuário, e define — de forma testável — o que significa um motor estar disponível.</p>
+    </div>
+
+    <h3>User Stories</h3>
+
+    <div class="user-story" id="US-001">
+      <div class="us-head">
+        <span class="us-id">US-001</span>
+        <span class="badge badge-ready">Ready</span>
+        <span class="badge badge-repo">codex-image</span>
+      </div>
+      <p class="story-text">Como skill downstream, quero que <code class="mono">codex-image:generate</code> e <code class="mono">codex-image:edit</code> declarem o parâmetro <code class="mono">engine</code>, para pedir um motor sem depender de conhecimento não escrito.</p>
+      <ul class="ac">
+        <li>AC: As duas SKILL.md declaram <code class="mono">engine</code> junto dos demais parâmetros de <code class="mono">generate_image</code>, com os dois valores que a tool realmente aceita — <code class="mono">codex</code> e <code class="mono">grok</code>. O enum do bridge é <code class="mono">z.enum(["codex","grok"])</code>; nada além disso é valor válido de parâmetro.</li>
+        <li>AC: Cada valor tem uma linha dizendo o que ele faz e para que tipo de asset ele é preferido.</li>
+        <li>AC: O <strong>modo prompt</strong> é documentado como modo da <em>skill</em>, explicitamente distinto do parâmetro da tool: ele curto-circuita antes da chamada a <code class="mono">generate_image</code> e entrega o prompt pronto, mesmo com motor instalado e funcionando. Não é um terceiro valor de <code class="mono">engine</code>.</li>
+        <li>AC: O default está escrito explicitamente e é o mesmo nos dois arquivos.</li>
+        <li>AC: A convenção de <code class="mono">out_path</code> dentro do cwd e uma chamada por asset permanece intacta.</li>
+      </ul>
+    </div>
+
+    <div class="user-story" id="US-002">
+      <div class="us-head">
+        <span class="us-id">US-002</span>
+        <span class="badge badge-blocked"><span class="dot"></span>Blocked · US-001</span>
+        <span class="badge badge-repo">codex-image + downstream</span>
+      </div>
+      <p class="story-text">Como mantenedor, quero uma fonte única da regra de roteamento por tipo de asset, para que as skills parem de repetir a escolha em prosa e divergir entre si.</p>
+      <ul class="ac">
+        <li>AC: Existe um único arquivo de referência em <code class="mono">codex-image</code> com a tabela tipo-de-asset → motor, cobrindo sprite/pixel art, retrato, ilustração, cena, slide de deck, criativo social e infográfico.</li>
+        <li>AC: Cada linha da tabela carrega o motivo da escolha (o <em>porquê</em>, não só o par) — a proveniência que hoje está diluída na prosa é preservada, não descartada.</li>
+        <li>AC: As três ocorrências que <em>declaram</em> a regra em prosa (<code class="mono">sprite/SKILL.md:67</code>, <code class="mono">CLAUDE.md:44</code>, <code class="mono">references/sprites.md:86-89</code>) passam a referenciar a fonte única em vez de reafirmar a regra. A invocação que apenas <em>usa</em> um motor em exemplo (<code class="mono">handoff/SKILL.md:28</code>) permanece como está.</li>
+        <li>AC: Nenhum arquivo fora da fonte única afirma qual motor é melhor para qual tipo de asset. Verificação: as três ocorrências acima citam a fonte única; uma leitura de <code class="mono">CLAUDE.md:44</code> e <code class="mono">references/sprites.md:86-89</code> confirma que descrevem <em>onde</em> a regra vive, não <em>qual</em> ela é. Regex sozinha não serve aqui — as declarações em prosa não contêm o token <code class="mono">engine:</code>.</li>
+      </ul>
+    </div>
+
+    <div class="user-story" id="US-003">
+      <div class="us-head">
+        <span class="us-id">US-003</span>
+        <span class="badge badge-blocked"><span class="dot"></span>Blocked · US-001</span>
+        <span class="badge badge-repo">codex-image + downstream</span>
+      </div>
+      <p class="story-text">Como usuário, quero forçar o motor na própria invocação e saber qual motor gerou cada asset, para comparar resultados e não depender de adivinhação.</p>
+      <ul class="ac">
+        <li>AC: O usuário pode pedir <code class="mono">codex</code>, <code class="mono">grok</code> ou o modo prompt na chamada, e o pedido explícito vence a tabela de roteamento sem nenhuma pergunta.</li>
+        <li>AC: O modo prompt entrega o prompt pronto e não gera arquivo, mesmo com os dois motores disponíveis — é escolha, não falha.</li>
+        <li>AC: Toda geração informa ao usuário qual motor foi usado e se veio da tabela ou de pedido explícito.</li>
+        <li>AC: Não há preferência persistente em disco nesta versão — a escolha é por chamada. (Config persistente é Non-Goal; ver Open Questions.)</li>
+      </ul>
+    </div>
+
+    <div class="user-story" id="US-004">
+      <div class="us-head">
+        <span class="us-id">US-004</span>
+        <span class="badge badge-blocked"><span class="dot"></span>Blocked · US-001, US-002</span>
+        <span class="badge badge-repo">codex-image</span>
+      </div>
+      <p class="story-text">Como usuário, quero que o sistema detecte que o motor preferido está ausente e <strong>pergunte antes de trocar</strong>, para não receber em silêncio um asset com qualidade diferente da que pedi.</p>
+      <ul class="ac">
+        <li>AC: A disponibilidade de cada motor é decidida pelo critério de "Technical Considerations" abaixo, sem chamada de rede e sem gerar imagem de teste.</li>
+        <li>AC: Motor preferido ausente e o outro disponível: a skill informa qual falta, por quê a troca importa para aquele tipo de asset, e <strong>pede confirmação</strong> — nunca troca sozinha.</li>
+        <li>AC: Nenhum motor disponível: cai no modo prompt e diz que caiu, nomeando o que falta e o comando que resolve — a degradação graciosa do projeto é preservada, agora explicada.</li>
+        <li>AC: Motor pedido explicitamente pelo usuário e ausente: erro que nomeia o motor e o remédio, sem troca silenciosa nem fallback automático.</li>
+      </ul>
+    </div>
+
+    <h3>Functional Requirements</h3>
+    <ol>
+      <li>O parâmetro <code class="mono">engine</code> da tool aceita exatamente dois valores: <code class="mono">codex</code> e <code class="mono">grok</code>. O modo prompt vive uma camada acima, na skill, e decide <em>se</em> a tool é chamada.</li>
+      <li>A precedência de decisão é: pedido explícito do usuário → tabela de roteamento por tipo de asset → confirmação do usuário quando o preferido está ausente → modo prompt quando nada está disponível.</li>
+      <li>A verificação de disponibilidade é local, barata e sem efeito colateral: resolução de binário e presença de credencial, nada mais.</li>
+      <li>Toda geração reporta o motor efetivamente usado e a origem da decisão.</li>
+    </ol>
+
+    <h3>Scope</h3>
+    <div class="chip-row">
+      <span class="chip">In — as duas skills de <code class="mono">codex-image</code>, a fonte única de regra, e as referências downstream</span>
+      <span class="chip">In — critério de disponibilidade e política de confirmação</span>
+      <span class="chip">Out — terceiro motor</span>
+      <span class="chip">Out — preferência persistente em config</span>
+      <span class="chip">Out — mudar o <code class="mono">polyagent-mcp</code> (fora deste repo)</span>
+      <span class="chip">Out — benchmark de qualidade entre motores</span>
+    </div>
+
+    <h3>Technical Considerations</h3>
+    <div class="callout callout-decision">
+      <span class="ico">i</span>
+      <div>
+        <p><strong>Critério de "motor disponível"</strong> — fecha o <code class="mono">rc-fail</code> que o épico carregava. Um motor está disponível quando <em>ambos</em> forem verdadeiros: o binário é resolvível <strong>e</strong> o diretório de credencial existe.</p>
+        <ul>
+          <li><strong>Codex</strong>: binário <code class="mono">codex</code> + <code class="mono">~/.codex/auth.json</code> presente.</li>
+          <li><strong>Grok</strong>: binário <code class="mono">grok</code> (override por <code class="mono">POLYAGENT_GROK_BIN</code>, respeitado pelo bridge em <code class="mono">src/cli.ts:65-66</code>) + <code class="mono">~/.grok</code> presente.</li>
+        </ul>
+        <p><strong>A resolução de binário não pode depender só do PATH herdado.</strong> Evidência medida em 2026-09-13 na máquina do autor: o Grok está instalado em <code class="mono">~/.grok/bin/grok</code> — resolvível no shell interativo, <strong>ausente no PATH de um processo filho</strong>. O bridge valida o binário com <code class="mono">binExists</code> (<code class="mono">src/cli.ts:963,974</code>), então nesse contexto o motor existe e mesmo assim é invisível. A cadeia correta é a que o próprio repo já acertou no <code class="mono">spritekit.py:285-305</code> para o Aseprite: <em>env var → config → PATH → locais conhecidos de instalação</em>. Aplicar o mesmo padrão aos motores, sem inventar um segundo.</p>
+      </div>
+    </div>
+
+    <h3>Dependencies</h3>
+    <ul>
+      <li><code class="mono">polyagent-mcp</code> (v0.5.0, ex-<code class="mono">cursor-mcp-bridge</code>) — fora deste repo; define os nomes de motor e o override <code class="mono">POLYAGENT_GROK_BIN</code>. Este PRD consome o contrato dele, não o altera. <strong>O contrato acabou de se mover:</strong> o rename de 2026-09-14 trocou todo o prefixo <code class="mono">CURSOR_*</code> por <code class="mono">POLYAGENT_*</code>, e o repo ainda carrega 47 ocorrências do nome antigo — tratadas na feature 2.</li>
+      <li>Feature 2 (portabilidade) reusa este mesmo critério de disponibilidade no diagnóstico da US-005 — a definição nasce aqui e é consumida lá.</li>
+      <li>Feature 3 (rename) edita os mesmos arquivos; por isso vem depois.</li>
+    </ul>
+
+    <h3>Requirements Checklist</h3>
+    <ul class="req-checklist">
+      <li class="rc rc-pass"><span class="mark">✓</span>Está definido, de forma testável e sem efeito colateral, o que faz um motor estar disponível? <em>(fechou o rc-fail que o épico carregava)</em></li>
+      <li class="rc rc-pass"><span class="mark">✓</span>Está definida a precedência completa de decisão, incluindo o caso de motor pedido explicitamente e ausente?</li>
+      <li class="rc rc-pass"><span class="mark">✓</span>Estão definidos os tipos de asset que a tabela de roteamento precisa cobrir, sem deixar categoria órfã?</li>
+    </ul>
+
+    <h3>Feature-Local Open Questions</h3>
+    <ul class="open-questions">
+      <li class="oq oq-answered"><span class="pill">answered</span> Motor preferido ausente — troca sozinho ou pergunta? — Pergunta e espera confirmação. A qualidade do asset muda, então a decisão é do usuário.</li>
+      <li class="oq oq-answered"><span class="pill">answered</span> Como pedir prompt-only tendo os dois motores? — pelo modo prompt na própria invocação (modo da skill, não valor do enum da tool). Sem config persistente nesta versão.</li>
+      <li class="oq oq-answered"><span class="pill">answered</span> Como detectar disponibilidade sem pagar uma geração? — Binário resolvível + diretório de credencial presente, com a cadeia de resolução do <code class="mono">spritekit.py</code>. Medido na máquina do autor em 2026-09-13.</li>
+      <li class="oq oq-parked"><span class="pill">parked</span> A tabela de roteamento deveria ser um arquivo de dados (JSON/YAML) em vez de referência em Markdown? — O repo é declarativo em Markdown por design e não tem consumidor programático dessa tabela hoje. Decisão tática: Markdown, fonte única; promover a dados só quando existir algo que a leia.</li>
+      <li class="oq oq-parked"><span class="pill">parked</span> Vale medir qualidade Grok×Codex por tipo de asset em vez de herdar o julgamento atual? — Non-Goal desta versão. Decisão tática: a tabela herda o que já está documentado e registra o motivo de cada linha, o que torna a revisão futura barata.</li>
+    </ul>
+
+    <h3>Acceptance Criteria (feature)</h3>
+    <div class="verify-box">Com os dois motores disponíveis: pedir um sprite e confirmar que usa Grok e diz que usou; pedir um retrato e confirmar Codex; pedir o modo prompt e confirmar que entrega o prompt sem gerar arquivo. Tornando o Grok indisponível (renomear o binário ou esvaziar o override): pedir um sprite e confirmar que a skill nomeia o que falta e <strong>pede confirmação</strong> em vez de gerar; recusar e confirmar que nada foi gerado; aceitar e confirmar que gera com Codex e diz o motivo. Pedir <code class="mono">engine: grok</code> explicitamente com Grok ausente e confirmar erro nomeado, sem fallback. Com os dois ausentes: confirmar queda no modo prompt com mensagem que lista o que falta.</div>
+  </section>
+</main>
+</div>
+</body>
+</html>

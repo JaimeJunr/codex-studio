@@ -1,0 +1,11 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+# spritekit.py sai do "Falta Pillow" (sys.exit) no import se Pillow nao
+# estiver presente — em clone limpo isso vira erro de coleta, nao skip.
+# Grupo de dependencias (PEP 735), nao [project]: nao torna o repo instalavel.
+# Aviso (US-006, rodada 4): decorativo neste ambiente — pip 24.0 nao tem
+# `--group` (so a partir do 25.1) e pytest 9.0.2 nao le [dependency-groups]
+# sozinho. Instalacao real documentada no CLAUDE.md: `pip install pytest Pillow`.
+[dependency-groups]
+test = ["Pillow"]

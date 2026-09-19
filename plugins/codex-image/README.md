@@ -1,6 +1,6 @@
 # codex-image
 
-Motor de imagem **keyless** do codex-studio. Gera e edita imagem dentro do Claude Code via **cursor-mcp-bridge** (tool `generate_image`) → `codex exec` + `image_gen` / gpt-image-2 — usando sua assinatura ChatGPT/Codex, **sem API key**.
+Motor de imagem **keyless** do codex-studio. Gera e edita imagem dentro do Claude Code via **polyagent-mcp** (tool `generate_image`) → `codex exec` + `image_gen` / gpt-image-2 — usando sua assinatura ChatGPT/Codex, **sem API key**.
 
 ## Skills
 
@@ -9,10 +9,22 @@ Motor de imagem **keyless** do codex-studio. Gera e edita imagem dentro do Claud
 
 ## Requisito
 
-1. **cursor-mcp-bridge** clonado e buildado (`npm run build`); exporte `CURSOR_MCP_BRIDGE_DIST=/caminho/para/cursor-mcp-bridge/dist/index.js`.
+1. Servidor MCP **`polyagent`** configurado globalmente no Claude Code, usando o projeto **[polyagent-mcp](https://github.com/JaimeJunr/polyagent-mcp)**.
 2. **Codex CLI** instalado e logado (`codex` no PATH) — o bridge chama `codex exec`.
 
-O plugin declara o MCP `cursor-bridge` em `.mcp.json`. Sem o bridge/Codex, as skills degradam pro fluxo copia-e-cola (prompt pronto pro chatgpt.com/images).
+Instalar o plugin **não instala nem registra o MCP**. Configure o servidor MCP `polyagent` globalmente uma vez, fora deste repo. No terminal, escolha uma pasta permanente para o clone e execute:
+
+```sh
+git clone https://github.com/JaimeJunr/polyagent-mcp.git
+cd polyagent-mcp
+npm install
+npm run build
+claude mcp add --scope user --transport stdio polyagent -- node "$(pwd)/dist/index.js"
+```
+
+O comando registra o servidor na configuração MCP do Claude Code no escopo `user`, disponível em todos os projetos. Mantenha o clone nesse caminho. Reinicie o Claude Code e confira o servidor `polyagent` em `/mcp`; a tool de imagem resolve como `mcp__polyagent__generate_image`. O Codex CLI deve estar instalado e logado para a geração keyless.
+
+Sem o bridge/Codex, as skills degradam pro fluxo copia-e-cola (prompt pronto pro chatgpt.com/images).
 
 ## Princípios
 
