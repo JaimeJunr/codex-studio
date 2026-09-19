@@ -1,11 +1,11 @@
 ---
 name: generate
-description: Gera imagem (bitmap) dentro do Claude Code via polyagent-mcp → Codex (gpt-image-2), sem API key. Use quando o usuário quer CRIAR uma imagem nova — foto, ilustração, mockup, capa, textura, slide-imagem. Salva no projeto via out_path. Para EDITAR imagem existente, use a skill edit. Para vetor/HTML/CSS, não use esta skill.
+description: Gera imagem (bitmap) dentro do Claude Code via polyagent-mcp → Codex (gpt-image-2) ou Grok (grok-4.5-build), sem API key. Use quando o usuário quer CRIAR uma imagem nova — foto, ilustração, mockup, capa, textura, slide-imagem. Salva no projeto via out_path. Para EDITAR imagem existente, use a skill edit. Para vetor/HTML/CSS, não use esta skill.
 ---
 
-# keyless-image:generate — gerar imagem keyless via polyagent-mcp → Codex
+# keyless-image:generate — gerar imagem keyless via polyagent-mcp → Codex ou Grok
 
-Cria imagem bitmap via a tool **`generate_image`** do MCP `polyagent` (`image_gen` / gpt-image-2). **Sem API key** — usa a assinatura ChatGPT/Codex do usuário. A tool já faz generate-then-move e devolve **só o caminho do PNG salvo** (nunca bytes inline).
+Cria imagem bitmap via a tool **`generate_image`** do MCP `polyagent` (`image_gen` / gpt-image-2 no Codex, grok-4.5-build no Grok). **Sem API key** — usa a assinatura ChatGPT/Codex ou Grok do usuário. A tool já faz generate-then-move e devolve **só o caminho do PNG salvo** (nunca bytes inline).
 
 ## Quando usar / não usar
 
@@ -14,9 +14,13 @@ Cria imagem bitmap via a tool **`generate_image`** do MCP `polyagent` (`image_ge
 
 ## Pré-requisito
 
-Servidor MCP `polyagent` configurado globalmente no Claude Code e disponível, com Codex CLI logado. Se **não** estiver:
+Servidor MCP `polyagent` configurado globalmente no Claude Code e disponível, com **pelo menos um** dos dois motores instalado: Codex CLI ou Grok.
 
-- Não trave. Gere o **prompt pronto** e diga: "cole no chatgpt.com/images". Informe que configurar o servidor MCP `polyagent` globalmente + logar o Codex CLI destrava a geração automática.
+⚠️ **A tool não faz fallback entre motores.** Omitir `engine` usa o default `codex`; se o Codex não estiver instalado, a chamada **falha** em vez de tentar o Grok. Com só um motor disponível, passe `engine` explicitamente (`engine: grok` quando o Codex faltar). Verifique antes de chamar — o bridge checa a presença do binário, não o login, então um CLI instalado e deslogado passa o guard e falha depois.
+
+Se **nenhum** motor estiver disponível:
+
+- Não trave. Gere o **prompt pronto** e diga: "cole no chatgpt.com/images". Informe que configurar o servidor MCP `polyagent` globalmente + logar o Codex CLI **ou** o Grok destrava a geração automática.
 
 ## Fluxo
 
@@ -37,6 +41,11 @@ Mostre o prompt ao usuário **antes** de gerar (pré-aprovação), salvo quando 
 Chame a tool **`generate_image`** com:
 - **`description`**: o prompt montado (§2).
 - **`out_path`**: destino do PNG **relativo ao cwd do projeto** (ex: `assets/hero.png`, `marketing/imagens/capa.png`). A tool salva **direto** nesse caminho — não há etapa manual de mover de `~/.codex/generated_images`.
+- **`engine`**: `codex` (default) ou `grok`. Ambos keyless. Só esses dois valores — o enum da tool é `z.enum(["codex","grok"])`.
+  - **`codex`** (default, gpt-image-2): preferido para retrato, ilustração e cena.
+  - **`grok`** (grok-4.5-build via assinatura Grok): preferido para sprite e pixel art.
+
+**Modo prompt** (modo da *skill*, não parâmetro da tool): curto-circuita *antes* da chamada a `generate_image` e entrega o prompt pronto — mesmo com motor instalado e funcionando. **Não é um terceiro valor de `engine`.** Sem MCP (Pré-requisito) também cai neste modo.
 
 O `out_path` **deve** ficar dentro do cwd do projeto (o sandbox do bridge só monta o cwd). A tool retorna **apenas o caminho final salvo**.
 
@@ -46,7 +55,7 @@ O `out_path` **deve** ficar dentro do cwd do projeto (o sandbox do bridge só mo
 Inspecione: sujeito, estilo, composição, **precisão do texto**, itens a evitar. Ajuste com **uma** mudança alvo e re-cheque — não empilhe 5 mudanças num prompt.
 
 ### 5. Reportar
-Sempre informe: **caminho final salvo no projeto**, o **prompt final**, e que foi via **polyagent-mcp → Codex built-in** (keyless). Lote = uma chamada por asset.
+Sempre informe: **caminho final salvo no projeto**, o **prompt final**, e o **motor efetivamente usado** (`codex` ou `grok`, via polyagent-mcp, keyless). Lote = uma chamada por asset.
 
 ## Nunca
 
