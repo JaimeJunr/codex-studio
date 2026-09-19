@@ -1,8 +1,8 @@
-# codex-studio
+# keyless-studio
 
 **Superpoder visual keyless para o Claude Code, via Codex.**
 
-O Claude Code não gera pixel. O `codex-studio` resolve isso ligando o Claude Code ao **Codex** (`image_gen` / gpt-image-2) pelo **[polyagent-mcp](https://github.com/JaimeJunr/polyagent-mcp)** — que gera e edita imagem usando a **sua assinatura ChatGPT/Codex, sem API key**. Em cima disso, entrega skills para **decks/PowerPoint, criativos sociais, infográficos e visuais de site** — genéricos o suficiente pra qualquer coisa (trabalho, documento, aula, site) e com pacotes especialistas quando você quer resultado pronto de um domínio.
+O Claude Code não gera pixel. O `keyless-studio` resolve isso ligando o Claude Code ao **Codex** (`image_gen` / gpt-image-2) pelo **[polyagent-mcp](https://github.com/JaimeJunr/polyagent-mcp)** — que gera e edita imagem usando a **sua assinatura ChatGPT/Codex, sem API key**. Em cima disso, entrega skills para **decks/PowerPoint, criativos sociais, infográficos e visuais de site** — genéricos o suficiente pra qualquer coisa (trabalho, documento, aula, site) e com pacotes especialistas quando você quer resultado pronto de um domínio.
 
 ## Por que
 
@@ -16,7 +16,7 @@ O Claude Code não gera pixel. O `codex-studio` resolve isso ligando o Claude Co
 - **Claude Code** (com suporte a plugins/marketplace).
 - Servidor MCP **`polyagent`** configurado globalmente no Claude Code (veja abaixo), usando o projeto **[polyagent-mcp](https://github.com/JaimeJunr/polyagent-mcp)**.
 - **Codex CLI** instalado e logado (`codex` no PATH) — o bridge chama `codex exec` + `image_gen` (gpt-image-2, keyless).
-- **Python 3** + `python-pptx` (só pro `codex-deck` montar `.pptx`): `pip install python-pptx`.
+- **Python 3** + `python-pptx` (só pro `keyless-deck` montar `.pptx`): `pip install python-pptx`.
 
 ## Instalação
 
@@ -35,18 +35,18 @@ O comando registra o servidor na configuração MCP do Claude Code no escopo `us
 Depois, no Claude Code:
 
 ```
-/plugin marketplace add JaimeJunr/codex-studio
-/plugin install codex-image@codex-studio      # motor (instale primeiro)
-/plugin install codex-deck@codex-studio        # decks/PPT
-/plugin install codex-social@codex-studio      # criativos sociais
-/plugin install codex-infographic@codex-studio
-/plugin install codex-biz@codex-studio         # especialista: negócio
-/plugin install codex-study@codex-studio       # especialista: estudo
-/plugin install codex-web@codex-studio         # especialista: site
-/plugin install codex-sprite@codex-studio      # game dev 2D (base pai)
-/plugin install codex-pixel@codex-studio       # estilo: pixel art
-/plugin install codex-cartoon@codex-studio     # estilo: cartoon
-/plugin install codex-realistic@codex-studio   # estilo: realista
+/plugin marketplace add JaimeJunr/keyless-studio
+/plugin install keyless-image@keyless-studio      # motor (instale primeiro)
+/plugin install keyless-deck@keyless-studio        # decks/PPT
+/plugin install keyless-social@keyless-studio      # criativos sociais
+/plugin install keyless-infographic@keyless-studio
+/plugin install keyless-biz@keyless-studio         # especialista: negócio
+/plugin install keyless-study@keyless-studio       # especialista: estudo
+/plugin install keyless-web@keyless-studio         # especialista: site
+/plugin install keyless-sprite@keyless-studio      # game dev 2D (base pai)
+/plugin install keyless-pixel@keyless-studio       # estilo: pixel art
+/plugin install keyless-cartoon@keyless-studio     # estilo: cartoon
+/plugin install keyless-realistic@keyless-studio   # estilo: realista
 ```
 
 Um comando por linha (o Claude Code interpreta slash line-by-line).
@@ -55,25 +55,25 @@ Um comando por linha (o Claude Code interpreta slash line-by-line).
 
 | Plugin | Camada | O que faz |
 |---|---|---|
-| **codex-image** | motor | Gera/edita imagem via polyagent-mcp → Codex (gpt-image-2, keyless). `out_path` no projeto, texto PT-BR na imagem. Base dos demais. |
-| **codex-deck** | genérico | Deck genérico → slides-imagem → `.pptx`. Trabalho, documento, relatório, aula. |
-| **codex-social** | genérico | Capa de carrossel, story/reel, quote card, criativo de anúncio. |
-| **codex-infographic** | genérico | Número/dado → slide infográfico. |
-| **codex-biz** | especialista | Pitch, deck de vendas, proposta, QBR (templates sobre o `codex-deck`). |
-| **codex-study** | especialista | Aula, resumo, flashcard, defesa acadêmica. |
-| **codex-web** | especialista | Hero, OG card, ilustração de seção, favicon pra sites. |
-| **codex-sprite** | genérico (base pai) | Game dev 2D: personagens, sprite sheets, tilesets, itens, UI. Pós-processa (fundo→alpha, sheet+JSON) via `spritekit.py`. Estilo-agnóstico. |
-| **codex-pixel** | especialista (estilo) | Pixel art autêntico: grid real, paleta (DB16/PICO-8/NES), pixelate+quantize sobre o `codex-sprite`. |
-| **codex-cartoon** | especialista (estilo) | Cartoon/toon: cores chapadas, bold outline sobre o `codex-sprite`. |
-| **codex-realistic** | especialista (estilo) | Realista/painterly: volume, luz, textura sobre o `codex-sprite`. |
+| **keyless-image** | motor | Gera/edita imagem via polyagent-mcp → Codex (gpt-image-2, keyless). `out_path` no projeto, texto PT-BR na imagem. Base dos demais. |
+| **keyless-deck** | genérico | Deck genérico → slides-imagem → `.pptx`. Trabalho, documento, relatório, aula. |
+| **keyless-social** | genérico | Capa de carrossel, story/reel, quote card, criativo de anúncio. |
+| **keyless-infographic** | genérico | Número/dado → slide infográfico. |
+| **keyless-biz** | especialista | Pitch, deck de vendas, proposta, QBR (templates sobre o `keyless-deck`). |
+| **keyless-study** | especialista | Aula, resumo, flashcard, defesa acadêmica. |
+| **keyless-web** | especialista | Hero, OG card, ilustração de seção, favicon pra sites. |
+| **keyless-sprite** | genérico (base pai) | Game dev 2D: personagens, sprite sheets, tilesets, itens, UI. Pós-processa (fundo→alpha, sheet+JSON) via `spritekit.py`. Estilo-agnóstico. |
+| **keyless-pixel** | especialista (estilo) | Pixel art autêntico: grid real, paleta (DB16/PICO-8/NES), pixelate+quantize sobre o `keyless-sprite`. |
+| **keyless-cartoon** | especialista (estilo) | Cartoon/toon: cores chapadas, bold outline sobre o `keyless-sprite`. |
+| **keyless-realistic** | especialista (estilo) | Realista/painterly: volume, luz, textura sobre o `keyless-sprite`. |
 
 ## Como funciona (arquitetura)
 
 ```
 Claude Code
-   │  usa skill (ex: codex-deck:deck → codex-image:generate)
+   │  usa skill (ex: keyless-deck:deck → keyless-image:generate)
    ▼
-codex-image  ──(MCP global polyagent / generate_image)──►  polyagent-mcp
+keyless-image  ──(MCP global polyagent / generate_image)──►  polyagent-mcp
                                                            │
                                                            ▼
                                                      codex exec  ──►  image_gen (gpt-image-2, keyless)

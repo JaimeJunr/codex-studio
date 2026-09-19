@@ -1,4 +1,4 @@
-# Roadmap — codex-studio
+# Roadmap — keyless-studio
 
 Ideias aprovadas para depois. Não são compromissos de versão; são direções que já validamos que fazem sentido.
 

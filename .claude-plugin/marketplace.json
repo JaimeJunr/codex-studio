@@ -1,5 +1,5 @@
 {
-  "name": "codex-studio",
+  "name": "keyless-studio",
   "owner": {
     "name": "JaimeJunr",
     "url": "https://github.com/JaimeJunr"
@@ -10,79 +10,79 @@
   },
   "plugins": [
     {
-      "name": "codex-image",
-      "source": "./plugins/codex-image",
+      "name": "keyless-image",
+      "source": "./plugins/keyless-image",
       "description": "Motor: gera e edita imagem via polyagent-mcp (tool generate_image) → codex exec + image_gen / gpt-image-2 — SEM API key, usa sua assinatura ChatGPT/Codex. Base dos outros plugins.",
       "version": "0.1.0",
       "keywords": ["image", "codex", "keyless", "gpt-image", "polyagent-mcp"]
     },
     {
-      "name": "codex-deck",
-      "source": "./plugins/codex-deck",
+      "name": "keyless-deck",
+      "source": "./plugins/keyless-deck",
       "description": "Motor de deck genérico: artigo/notas/outline → slides-imagem via Codex → .pptx (python-pptx). Serve pra trabalho, documento, relatório, aula.",
       "version": "0.1.0",
       "keywords": ["powerpoint", "pptx", "slides", "deck"]
     },
     {
-      "name": "codex-social",
-      "source": "./plugins/codex-social",
+      "name": "keyless-social",
+      "source": "./plugins/keyless-social",
       "description": "Criativos on-brand: capa de carrossel, story/reel, quote card, criativo de anuncio.",
       "version": "0.1.0",
       "keywords": ["social", "instagram", "carousel", "creative"]
     },
     {
-      "name": "codex-infographic",
-      "source": "./plugins/codex-infographic",
+      "name": "keyless-infographic",
+      "source": "./plugins/keyless-infographic",
       "description": "Transforma numero/dado/metrica em slide ou imagem infografica on-brand.",
       "version": "0.1.0",
       "keywords": ["infographic", "data", "chart"]
     },
     {
-      "name": "codex-biz",
-      "source": "./plugins/codex-biz",
-      "description": "Especialista negocio: pitch deck, deck de vendas, proposta comercial, QBR/relatorio executivo (templates sobre o codex-deck).",
+      "name": "keyless-biz",
+      "source": "./plugins/keyless-biz",
+      "description": "Especialista negocio: pitch deck, deck de vendas, proposta comercial, QBR/relatorio executivo (templates sobre o keyless-deck).",
       "version": "0.1.0",
       "keywords": ["pitch", "sales", "proposal", "business"]
     },
     {
-      "name": "codex-study",
-      "source": "./plugins/codex-study",
+      "name": "keyless-study",
+      "source": "./plugins/keyless-study",
       "description": "Especialista estudo: aula, resumo visual, flashcard, defesa/apresentacao academica.",
       "version": "0.1.0",
       "keywords": ["study", "education", "lecture", "flashcard"]
     },
     {
-      "name": "codex-web",
-      "source": "./plugins/codex-web",
+      "name": "keyless-web",
+      "source": "./plugins/keyless-web",
       "description": "Especialista web: hero, OG card, ilustracao de secao, favicon pra producao de sites.",
       "version": "0.1.0",
       "keywords": ["web", "hero", "og-image", "favicon"]
     },
     {
-      "name": "codex-sprite",
-      "source": "./plugins/codex-sprite",
+      "name": "keyless-sprite",
+      "source": "./plugins/keyless-sprite",
       "description": "Base pai de game dev 2D: personagens, sprite sheets animados, tilesets, itens/icones e UI via Codex (keyless) + pos-processamento (fundo->alpha, sheet+JSON, Pillow). Estilo-agnostico; base dos especialistas de estilo.",
       "version": "0.1.0",
       "keywords": ["gamedev", "sprite", "sprite-sheet", "tileset", "2d"]
     },
     {
-      "name": "codex-pixel",
-      "source": "./plugins/codex-pixel",
-      "description": "Especialista pixel art autentico: grid inteiro real, paleta limitada (DB16/PICO-8/NES), hard edges, sem anti-aliasing. Especializacao de estilo sobre o codex-sprite (pixelate/quantize).",
+      "name": "keyless-pixel",
+      "source": "./plugins/keyless-pixel",
+      "description": "Especialista pixel art autentico: grid inteiro real, paleta limitada (DB16/PICO-8/NES), hard edges, sem anti-aliasing. Especializacao de estilo sobre o keyless-sprite (pixelate/quantize).",
       "version": "0.1.0",
       "keywords": ["pixel-art", "gamedev", "palette", "8-bit", "16-bit"]
     },
     {
-      "name": "codex-cartoon",
-      "source": "./plugins/codex-cartoon",
-      "description": "Especialista cartoon/toon: cores chapadas, contorno marcado, formas exageradas (vetor/mobile). Especializacao de estilo sobre o codex-sprite.",
+      "name": "keyless-cartoon",
+      "source": "./plugins/keyless-cartoon",
+      "description": "Especialista cartoon/toon: cores chapadas, contorno marcado, formas exageradas (vetor/mobile). Especializacao de estilo sobre o keyless-sprite.",
       "version": "0.1.0",
       "keywords": ["cartoon", "toon", "gamedev", "vector", "flat"]
     },
     {
-      "name": "codex-realistic",
-      "source": "./plugins/codex-realistic",
-      "description": "Especialista realista/painterly: volume, iluminacao direcional, textura e detalhe (RPG, key art, icones). Especializacao de estilo sobre o codex-sprite.",
+      "name": "keyless-realistic",
+      "source": "./plugins/keyless-realistic",
+      "description": "Especialista realista/painterly: volume, iluminacao direcional, textura e detalhe (RPG, key art, icones). Especializacao de estilo sobre o keyless-sprite.",
       "version": "0.1.0",
       "keywords": ["realistic", "painterly", "gamedev", "key-art"]
     }
