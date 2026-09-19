@@ -17,7 +17,8 @@ EXCLUDED_FILE_NAMES: frozenset[str] = frozenset(
     }
 )
 
-# AGENTS.md da raiz: fora do escopo da US-007, alinhamento pendente.
+# AGENTS.md e symlink pro CLAUDE.md: varrer os dois contaria cada ocorrencia
+# duas vezes. Excluir o link mantem o alvo real (CLAUDE.md) sob a varredura.
 EXCLUDED_RELATIVE_PATHS: frozenset[str] = frozenset({"AGENTS.md"})
 
 
