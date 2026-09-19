@@ -1,10 +1,10 @@
 {
   "name": "keyless-realistic",
   "version": "0.1.0",
-  "description": "Especialista em arte realista/semi-realista (painterly) pra jogos: volume, iluminação direcional, textura e detalhe (RPG/estratégia, key art, ícones). Especialização de estilo sobre o keyless-sprite (herda o fluxo; pós = fundo→alpha, sem pixelate).",
+  "description": "Gera sprites e key art realistas/painterly pra jogos em PNG com fundo transparente e sprite sheet + JSON.",
   "author": { "name": "JaimeJunr", "url": "https://github.com/JaimeJunr" },
   "homepage": "https://github.com/JaimeJunr/keyless-studio",
   "repository": "https://github.com/JaimeJunr/keyless-studio",
   "license": "MIT",
-  "keywords": ["realistic", "painterly", "gamedev", "sprite", "key-art", "2d"]
+  "keywords": ["game-dev", "sprite-sheet", "image-generation", "keyless", "grok", "no-api-key"]
 }

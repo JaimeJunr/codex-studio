@@ -1,15 +1,17 @@
 # keyless-studio
 
-**Superpoder visual keyless para o Claude Code, via Codex.**
+keyless-studio is a Claude Code plugin marketplace for visual generation with no API key — images, pixel art, sprite sheets for game dev, `.pptx` decks, social creatives, infographics, and site visuals. It routes through the Codex or Grok subscription you already have (via [polyagent-mcp](https://github.com/JaimeJunr/polyagent-mcp)), so there is nothing new to bill. Built for anyone who needs the visual inside the agent, not another dashboard with a billed key.
 
-O Claude Code não gera pixel. O `keyless-studio` resolve isso ligando o Claude Code ao **Codex** (`image_gen` / gpt-image-2) pelo **[polyagent-mcp](https://github.com/JaimeJunr/polyagent-mcp)** — que gera e edita imagem usando a **sua assinatura ChatGPT/Codex, sem API key**. Em cima disso, entrega skills para **decks/PowerPoint, criativos sociais, infográficos e visuais de site** — genéricos o suficiente pra qualquer coisa (trabalho, documento, aula, site) e com pacotes especialistas quando você quer resultado pronto de um domínio.
+**Superpoder visual keyless para o Claude Code, via Codex ou Grok.**
+
+O Claude Code não gera pixel. O `keyless-studio` resolve isso ligando o Claude Code ao **Codex** (`image_gen` / gpt-image-2) ou ao **Grok** (melhor pra sprite e pixel art) pelo **[polyagent-mcp](https://github.com/JaimeJunr/polyagent-mcp)** — gera e edita imagem usando a **sua assinatura ChatGPT/Codex ou Grok, sem API key**. Em cima disso, entrega skills para **pixel art, sprite sheets e assets de game dev 2D**, além de **decks/PowerPoint, criativos sociais, infográficos e visuais de site** — genéricos o suficiente pra qualquer coisa (jogo, trabalho, documento, aula, site) e com pacotes especialistas quando você quer resultado pronto de um domínio.
 
 ## Por que
 
-- **Sem API key.** Imagem via Codex usa a auth que você já tem (ChatGPT free incluído). Sem `OPENAI_API_KEY`, sem chave de terceiro pra gerenciar.
-- **Local e seu.** Decks viram `.pptx` de verdade montado localmente (python-pptx). Imagens ficam no seu projeto.
-- **Genérico + especialista.** Os plugins-base servem pra tudo; os especialistas (negócio, estudo, web) dão templates curados por cima.
-- **Degrada com elegância.** Sem bridge/Codex, cai pro fluxo copia-e-cola (prompt pronto pro chatgpt.com/images) ou outro provedor — nunca trava.
+- **Sem API key.** Imagem via Codex ou Grok usa a auth que você já tem (ChatGPT free incluído). Sem `OPENAI_API_KEY`, sem chave de terceiro pra gerenciar.
+- **Local e seu.** Decks viram `.pptx` de verdade montado localmente (python-pptx). Imagens e sprites ficam no seu projeto.
+- **Genérico + especialista.** Os plugins-base servem pra tudo; os especialistas (negócio, estudo, web, e os estilos de game — pixel, cartoon, realista) dão templates curados por cima.
+- **Degrada com elegância.** Sem bridge/Codex/Grok, cai pro fluxo copia-e-cola (prompt pronto pro chatgpt.com/images) ou outro provedor — nunca trava.
 
 ## Pré-requisitos
 

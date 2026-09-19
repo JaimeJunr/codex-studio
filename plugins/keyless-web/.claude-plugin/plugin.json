@@ -1,10 +1,10 @@
 {
   "name": "keyless-web",
   "version": "0.1.0",
-  "description": "Especialista web: hero, OG card, ilustração de seção e favicon pra produção de sites — via Codex, sem API key.",
+  "description": "Gera visuais PNG de site — hero, OG card, ilustração de seção e favicon — sem API key.",
   "author": { "name": "JaimeJunr", "url": "https://github.com/JaimeJunr" },
   "homepage": "https://github.com/JaimeJunr/keyless-studio",
   "repository": "https://github.com/JaimeJunr/keyless-studio",
   "license": "MIT",
-  "keywords": ["web", "hero", "og-image", "favicon", "illustration"]
+  "keywords": ["image-generation", "text-to-image", "keyless", "no-api-key", "claude-code", "og-image", "favicon"]
 }
