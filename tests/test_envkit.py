@@ -1,6 +1,6 @@
 """Testes do modulo compartilhado envkit (resolucao portatil de ambiente).
 
-envkit vive em plugins/codex-image/scripts/envkit.py (camada base). O
+envkit vive em plugins/keyless-image/scripts/envkit.py (camada base). O
 carregamento aqui usa importlib direto do arquivo — nao depende de
 sys.path/instalacao do plugin, mesmo mecanismo que spritekit.py usara
 para descobrir o modulo em runtime.
@@ -18,7 +18,7 @@ def _load_envkit():
     module_path = (
         Path(__file__).resolve().parent.parent
         / "plugins"
-        / "codex-image"
+        / "keyless-image"
         / "scripts"
         / "envkit.py"
     )
@@ -179,12 +179,12 @@ def test_migrate_legacy_config_macos_migrates_xdg_literal_legacy(
 ):
     """CRITICAL/AC2: versoes antigas cravavam XDG (~/.config) em qualquer
     SO. Um usuario de macOS que rodou 'setup --path' antes desta mudanca
-    tem o config em ~/.config/codex-sprite, nao em Application Support —
+    tem o config em ~/.config/keyless-sprite, nao em Application Support —
     a migracao precisa achar isso sem exigir acao do usuario."""
     monkeypatch.setattr(envkit.sys, "platform", "darwin")
     _pin_home(monkeypatch, tmp_path)
 
-    legacy_dir = tmp_path / ".config" / "codex-sprite"
+    legacy_dir = tmp_path / ".config" / "keyless-sprite"
     legacy_dir.mkdir(parents=True)
     legacy_config = legacy_dir / "config.json"
     legacy_config.write_text(
@@ -192,10 +192,10 @@ def test_migrate_legacy_config_macos_migrates_xdg_literal_legacy(
         encoding="utf-8",
     )
 
-    envkit.migrate_legacy_config("codex-sprite", ["codex-sprite"])
+    envkit.migrate_legacy_config("keyless-sprite", ["keyless-sprite"])
 
     new_config = (
-        tmp_path / "Library" / "Application Support" / "codex-sprite" / "config.json"
+        tmp_path / "Library" / "Application Support" / "keyless-sprite" / "config.json"
     )
     assert new_config.is_file()
     assert json.loads(new_config.read_text(encoding="utf-8")) == {
@@ -213,16 +213,16 @@ def test_migrate_legacy_config_windows_migrates_xdg_literal_legacy(
     monkeypatch.setenv("APPDATA", str(tmp_path / "Roaming"))
     _pin_home(monkeypatch, tmp_path)
 
-    legacy_dir = tmp_path / ".config" / "codex-sprite"
+    legacy_dir = tmp_path / ".config" / "keyless-sprite"
     legacy_dir.mkdir(parents=True)
     legacy_config = legacy_dir / "config.json"
     legacy_config.write_text(
         json.dumps({"aseprite_path": "C:/Games/Aseprite.exe"}), encoding="utf-8"
     )
 
-    envkit.migrate_legacy_config("codex-sprite", ["codex-sprite"])
+    envkit.migrate_legacy_config("keyless-sprite", ["keyless-sprite"])
 
-    new_config = tmp_path / "Roaming" / "codex-sprite" / "config.json"
+    new_config = tmp_path / "Roaming" / "keyless-sprite" / "config.json"
     assert new_config.is_file()
     assert json.loads(new_config.read_text(encoding="utf-8")) == {
         "aseprite_path": "C:/Games/Aseprite.exe"
@@ -264,17 +264,17 @@ def test_migrate_legacy_config_new_wins_over_xdg_literal_legacy(monkeypatch, tmp
     monkeypatch.setattr(envkit.sys, "platform", "darwin")
     _pin_home(monkeypatch, tmp_path)
 
-    new_dir = tmp_path / "Library" / "Application Support" / "codex-sprite"
+    new_dir = tmp_path / "Library" / "Application Support" / "keyless-sprite"
     new_dir.mkdir(parents=True)
     (new_dir / "config.json").write_text(json.dumps({"a": "novo"}), encoding="utf-8")
 
-    legacy_dir = tmp_path / ".config" / "codex-sprite"
+    legacy_dir = tmp_path / ".config" / "keyless-sprite"
     legacy_dir.mkdir(parents=True)
     (legacy_dir / "config.json").write_text(
         json.dumps({"a": "legado"}), encoding="utf-8"
     )
 
-    envkit.migrate_legacy_config("codex-sprite", ["codex-sprite"])
+    envkit.migrate_legacy_config("keyless-sprite", ["keyless-sprite"])
 
     result = json.loads((new_dir / "config.json").read_text(encoding="utf-8"))
     assert result == {"a": "novo"}

@@ -1,0 +1,10 @@
+{
+  "name": "keyless-cartoon",
+  "version": "0.1.0",
+  "description": "Especialista em arte cartoon/toon pra jogos: cores chapadas, contorno marcado, formas exageradas e leitura limpa (estilo vetor/mobile). Especialização de estilo sobre o keyless-sprite (herda o fluxo; pós = fundo→alpha, sem pixelate).",
+  "author": { "name": "JaimeJunr", "url": "https://github.com/JaimeJunr" },
+  "homepage": "https://github.com/JaimeJunr/keyless-studio",
+  "repository": "https://github.com/JaimeJunr/keyless-studio",
+  "license": "MIT",
+  "keywords": ["cartoon", "toon", "gamedev", "sprite", "vector", "flat"]
+}
