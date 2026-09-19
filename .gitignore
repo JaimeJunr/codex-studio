@@ -2,6 +2,7 @@
 *.pptx
 generated_images/
 out/
+.sprite-demo/
 __pycache__/
 *.pyc
 

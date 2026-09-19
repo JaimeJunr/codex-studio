@@ -1,0 +1,10 @@
+{
+  "name": "codex-pixel",
+  "version": "0.1.0",
+  "description": "Especialista em pixel art autêntico pra jogos: grid inteiro real, paleta limitada (DB16/PICO-8/NES), hard edges e sem anti-aliasing. Especialização de estilo sobre o codex-sprite (herda o fluxo + adiciona o pós pixelate/quantize).",
+  "author": { "name": "JaimeJunr", "url": "https://github.com/JaimeJunr" },
+  "homepage": "https://github.com/JaimeJunr/codex-studio",
+  "repository": "https://github.com/JaimeJunr/codex-studio",
+  "license": "MIT",
+  "keywords": ["pixel-art", "gamedev", "sprite", "palette", "8-bit", "16-bit"]
+}

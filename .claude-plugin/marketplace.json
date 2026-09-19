@@ -57,6 +57,34 @@
       "description": "Especialista web: hero, OG card, ilustracao de secao, favicon pra producao de sites.",
       "version": "0.1.0",
       "keywords": ["web", "hero", "og-image", "favicon"]
+    },
+    {
+      "name": "codex-sprite",
+      "source": "./plugins/codex-sprite",
+      "description": "Base pai de game dev 2D: personagens, sprite sheets animados, tilesets, itens/icones e UI via Codex (keyless) + pos-processamento (fundo->alpha, sheet+JSON, Pillow). Estilo-agnostico; base dos especialistas de estilo.",
+      "version": "0.1.0",
+      "keywords": ["gamedev", "sprite", "sprite-sheet", "tileset", "2d"]
+    },
+    {
+      "name": "codex-pixel",
+      "source": "./plugins/codex-pixel",
+      "description": "Especialista pixel art autentico: grid inteiro real, paleta limitada (DB16/PICO-8/NES), hard edges, sem anti-aliasing. Especializacao de estilo sobre o codex-sprite (pixelate/quantize).",
+      "version": "0.1.0",
+      "keywords": ["pixel-art", "gamedev", "palette", "8-bit", "16-bit"]
+    },
+    {
+      "name": "codex-cartoon",
+      "source": "./plugins/codex-cartoon",
+      "description": "Especialista cartoon/toon: cores chapadas, contorno marcado, formas exageradas (vetor/mobile). Especializacao de estilo sobre o codex-sprite.",
+      "version": "0.1.0",
+      "keywords": ["cartoon", "toon", "gamedev", "vector", "flat"]
+    },
+    {
+      "name": "codex-realistic",
+      "source": "./plugins/codex-realistic",
+      "description": "Especialista realista/painterly: volume, iluminacao direcional, textura e detalhe (RPG, key art, icones). Especializacao de estilo sobre o codex-sprite.",
+      "version": "0.1.0",
+      "keywords": ["realistic", "painterly", "gamedev", "key-art"]
     }
   ]
 }
