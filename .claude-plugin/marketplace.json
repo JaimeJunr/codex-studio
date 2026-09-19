@@ -5,86 +5,86 @@
     "url": "https://github.com/JaimeJunr"
   },
   "metadata": {
-    "description": "Superpoder visual keyless pro Claude Code via Codex — imagem, decks/PPT de negócio, criativos sociais e visuais de site, sem API key.",
+    "description": "Superpoder visual keyless pro Claude Code via Codex ou Grok — imagem, pixel art, sprite sheets, decks .pptx, criativos sociais e visuais de site, sem API key.",
     "version": "0.1.0"
   },
   "plugins": [
     {
       "name": "keyless-image",
       "source": "./plugins/keyless-image",
-      "description": "Motor: gera e edita imagem via polyagent-mcp (tool generate_image) → codex exec + image_gen / gpt-image-2 — SEM API key, usa sua assinatura ChatGPT/Codex. Base dos outros plugins.",
+      "description": "Gera e edita imagens PNG no Claude Code — foto, ilustração, mockup, capa — via Codex ou Grok, sem API key.",
       "version": "0.1.0",
-      "keywords": ["image", "codex", "keyless", "gpt-image", "polyagent-mcp"]
+      "keywords": ["image-generation", "text-to-image", "codex", "grok", "keyless", "no-api-key", "gpt-image", "claude-code"]
     },
     {
       "name": "keyless-deck",
       "source": "./plugins/keyless-deck",
-      "description": "Motor de deck genérico: artigo/notas/outline → slides-imagem via Codex → .pptx (python-pptx). Serve pra trabalho, documento, relatório, aula.",
+      "description": "Transforma artigo, notas ou outline em apresentação `.pptx` com um PNG por slide, pronta pra trabalho, relatório ou aula.",
       "version": "0.1.0",
-      "keywords": ["powerpoint", "pptx", "slides", "deck"]
+      "keywords": ["pptx", "presentation-generator", "image-generation", "keyless", "no-api-key", "claude-code"]
     },
     {
       "name": "keyless-social",
       "source": "./plugins/keyless-social",
-      "description": "Criativos on-brand: capa de carrossel, story/reel, quote card, criativo de anuncio.",
+      "description": "Gera criativos PNG para redes — capa de carrossel, story/reel, quote card e anúncio — no aspect ratio certo, sem API key.",
       "version": "0.1.0",
-      "keywords": ["social", "instagram", "carousel", "creative"]
+      "keywords": ["image-generation", "text-to-image", "keyless", "no-api-key", "claude-code", "instagram"]
     },
     {
       "name": "keyless-infographic",
       "source": "./plugins/keyless-infographic",
-      "description": "Transforma numero/dado/metrica em slide ou imagem infografica on-brand.",
+      "description": "Transforma número, dado ou métrica em imagem infográfica PNG — big number, comparativo, timeline ou funil.",
       "version": "0.1.0",
-      "keywords": ["infographic", "data", "chart"]
+      "keywords": ["image-generation", "keyless", "no-api-key", "text-to-image", "claude-code", "infographic"]
     },
     {
       "name": "keyless-biz",
       "source": "./plugins/keyless-biz",
-      "description": "Especialista negocio: pitch deck, deck de vendas, proposta comercial, QBR/relatorio executivo (templates sobre o keyless-deck).",
+      "description": "Monta pitch, deck de vendas, proposta comercial e QBR em `.pptx` com slides-imagem — requer keyless-deck.",
       "version": "0.1.0",
-      "keywords": ["pitch", "sales", "proposal", "business"]
+      "keywords": ["pptx", "presentation-generator", "image-generation", "keyless", "no-api-key", "claude-code", "pitch"]
     },
     {
       "name": "keyless-study",
       "source": "./plugins/keyless-study",
-      "description": "Especialista estudo: aula, resumo visual, flashcard, defesa/apresentacao academica.",
+      "description": "Monta aula, resumo visual, flashcards e defesa acadêmica em `.pptx` com slides-imagem — requer keyless-deck.",
       "version": "0.1.0",
-      "keywords": ["study", "education", "lecture", "flashcard"]
+      "keywords": ["pptx", "presentation-generator", "image-generation", "keyless", "no-api-key", "claude-code", "flashcard"]
     },
     {
       "name": "keyless-web",
       "source": "./plugins/keyless-web",
-      "description": "Especialista web: hero, OG card, ilustracao de secao, favicon pra producao de sites.",
+      "description": "Gera visuais PNG de site — hero, OG card, ilustração de seção e favicon — sem API key.",
       "version": "0.1.0",
-      "keywords": ["web", "hero", "og-image", "favicon"]
+      "keywords": ["image-generation", "text-to-image", "keyless", "no-api-key", "claude-code", "og-image", "favicon"]
     },
     {
       "name": "keyless-sprite",
       "source": "./plugins/keyless-sprite",
-      "description": "Base pai de game dev 2D: personagens, sprite sheets animados, tilesets, itens/icones e UI via Codex (keyless) + pos-processamento (fundo->alpha, sheet+JSON, Pillow). Estilo-agnostico; base dos especialistas de estilo.",
+      "description": "Gera personagens, tilesets, itens e UI de jogo 2D em PNG, e empacota sprite sheet + JSON pra Unity, Godot ou Aseprite.",
       "version": "0.1.0",
-      "keywords": ["gamedev", "sprite", "sprite-sheet", "tileset", "2d"]
+      "keywords": ["game-dev", "sprite-sheet", "aseprite", "image-generation", "keyless", "grok", "no-api-key", "claude-code"]
     },
     {
       "name": "keyless-pixel",
       "source": "./plugins/keyless-pixel",
-      "description": "Especialista pixel art autentico: grid inteiro real, paleta limitada (DB16/PICO-8/NES), hard edges, sem anti-aliasing. Especializacao de estilo sobre o keyless-sprite (pixelate/quantize).",
+      "description": "Entrega pixel art game-ready em PNG — grid real, paleta DB16/PICO-8/NES — e sprite sheet + JSON; requer keyless-sprite.",
       "version": "0.1.0",
-      "keywords": ["pixel-art", "gamedev", "palette", "8-bit", "16-bit"]
+      "keywords": ["pixel-art", "sprite-sheet", "game-dev", "aseprite", "grok", "keyless", "no-api-key"]
     },
     {
       "name": "keyless-cartoon",
       "source": "./plugins/keyless-cartoon",
-      "description": "Especialista cartoon/toon: cores chapadas, contorno marcado, formas exageradas (vetor/mobile). Especializacao de estilo sobre o keyless-sprite.",
+      "description": "Gera sprites cartoon/toon pra jogos em PNG com fundo transparente e sprite sheet + JSON — cores chapadas, contorno marcado.",
       "version": "0.1.0",
-      "keywords": ["cartoon", "toon", "gamedev", "vector", "flat"]
+      "keywords": ["game-dev", "sprite-sheet", "image-generation", "keyless", "grok", "no-api-key", "cartoon"]
     },
     {
       "name": "keyless-realistic",
       "source": "./plugins/keyless-realistic",
-      "description": "Especialista realista/painterly: volume, iluminacao direcional, textura e detalhe (RPG, key art, icones). Especializacao de estilo sobre o keyless-sprite.",
+      "description": "Gera sprites e key art realistas/painterly pra jogos em PNG com fundo transparente e sprite sheet + JSON.",
       "version": "0.1.0",
-      "keywords": ["realistic", "painterly", "gamedev", "key-art"]
+      "keywords": ["game-dev", "sprite-sheet", "image-generation", "keyless", "grok", "no-api-key"]
     }
   ]
 }

@@ -1,10 +1,10 @@
 {
   "name": "keyless-sprite",
   "version": "0.1.0",
-  "description": "Base pai de game dev 2D: gera personagens, sprite sheets animados, tilesets, itens/ícones e UI via Codex (keyless) com pós-processamento (fundo→alpha, sheet+JSON). Estilo-agnóstico — pixel/cartoon/realista vêm dos especialistas.",
+  "description": "Gera personagens, tilesets, itens e UI de jogo 2D em PNG, e empacota sprite sheet + JSON pra Unity, Godot ou Aseprite.",
   "author": { "name": "JaimeJunr", "url": "https://github.com/JaimeJunr" },
   "homepage": "https://github.com/JaimeJunr/keyless-studio",
   "repository": "https://github.com/JaimeJunr/keyless-studio",
   "license": "MIT",
-  "keywords": ["gamedev", "sprite", "sprite-sheet", "tileset", "2d", "game-asset"]
+  "keywords": ["game-dev", "sprite-sheet", "aseprite", "image-generation", "keyless", "grok", "no-api-key", "claude-code"]
 }

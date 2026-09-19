@@ -1,10 +1,10 @@
 {
   "name": "keyless-pixel",
   "version": "0.1.0",
-  "description": "Especialista em pixel art autêntico pra jogos: grid inteiro real, paleta limitada (DB16/PICO-8/NES), hard edges e sem anti-aliasing. Especialização de estilo sobre o keyless-sprite (herda o fluxo + adiciona o pós pixelate/quantize).",
+  "description": "Entrega pixel art game-ready em PNG — grid real, paleta DB16/PICO-8/NES — e sprite sheet + JSON; requer keyless-sprite.",
   "author": { "name": "JaimeJunr", "url": "https://github.com/JaimeJunr" },
   "homepage": "https://github.com/JaimeJunr/keyless-studio",
   "repository": "https://github.com/JaimeJunr/keyless-studio",
   "license": "MIT",
-  "keywords": ["pixel-art", "gamedev", "sprite", "palette", "8-bit", "16-bit"]
+  "keywords": ["pixel-art", "sprite-sheet", "game-dev", "aseprite", "grok", "keyless", "no-api-key"]
 }

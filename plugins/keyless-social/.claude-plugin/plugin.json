@@ -1,10 +1,10 @@
 {
   "name": "keyless-social",
   "version": "0.1.0",
-  "description": "Criativos on-brand para redes: capa de carrossel, story/reel, quote card, criativo de anúncio — imagem de verdade via Codex, sem API key.",
+  "description": "Gera criativos PNG para redes — capa de carrossel, story/reel, quote card e anúncio — no aspect ratio certo, sem API key.",
   "author": { "name": "JaimeJunr", "url": "https://github.com/JaimeJunr" },
   "homepage": "https://github.com/JaimeJunr/keyless-studio",
   "repository": "https://github.com/JaimeJunr/keyless-studio",
   "license": "MIT",
-  "keywords": ["social", "instagram", "carousel", "story", "creative", "ad"]
+  "keywords": ["image-generation", "text-to-image", "keyless", "no-api-key", "claude-code", "instagram"]
 }
