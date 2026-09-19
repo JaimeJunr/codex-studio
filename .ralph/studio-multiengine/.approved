@@ -1,0 +1,24 @@
+approved_at: 2026-09-14T16:49:30-03:00
+approved_by: human
+current_tier: full
+current_prd_file: prd.html
+prd_sha256: d89de6f7eee01db33cd6e652da5093227714b10340de66bdae1c55cd0bb9e54e
+features_sha256: 260d972d9abe3e27fde5a7fcc6d22812f1afe8250595367a526ae2d9b64cfc4f
+features:
+  - multi-engine: reviewer_approved
+  - portabilidade: reviewer_approved
+  - rename-descoberta: reviewer_approved
+parked_open_questions:
+  - prd.html: "Como distribuir além do git clone (npm, registry próprio)? — Non-Goal desta versão; o marketplace declarativo já é o canal de instalação."
+  - prd.html: "Vale adicionar CI mínimo (validar JSON dos plugins, checar referências cruzadas órfãs)? — fora do escopo declarado; a varredura de órfãos da US-012 roda manual nesta versão."
+  - features/multi-engine.html: "A tabela de roteamento deveria ser arquivo de dados (JSON/YAML)? — o repo é declarativo em Markdown por design e não há consumidor programático hoje."
+  - features/multi-engine.html: "Vale medir qualidade Grok x Codex por tipo de asset? — Non-Goal; a tabela herda o julgamento documentado e registra o motivo de cada linha."
+  - features/portabilidade.html: "O diagnóstico deveria instalar o que falta (--fix)? — Non-Goal: instalar exige privilégio e decisão do usuário."
+  - features/portabilidade.html: "Como o diagnóstico descobre a versão do polyagent-mcp rodando como MCP global? — depende de o bridge expor a própria versão; reportar presente/ausente por ora."
+  - features/rename-descoberta.html: "Registrar org/nome no GitHub e npm antes de anunciar? — depende do nome escolhido; fazer junto da US-011."
+open_questions_pending_po:
+  - prd.html: "Qual o nome novo? — critérios fixados; shortlist verificada entregue pela US-011, escolha final do usuário. Não bloqueia o selo; bloqueia a execução da feature 3."
+  - features/rename-descoberta.html: "Qual o nome final? — keyless-studio é o único candidato sem colisão, com ressalva. Segunda rodada prevista se recusado."
+accepted_rc_fails: []
+accepted_cap_overrun:
+  - "features/*.html em 125/151/116 lines-equivalent vs cap 60 — aceito pelo usuário em 2026-09-14: o excesso é evidência medida (critério de disponibilidade, verificação de colisão, 58 ACs), não prosa."

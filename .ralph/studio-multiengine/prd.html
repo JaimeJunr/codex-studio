@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="prd-tier" content="full">
+<meta name="prd-previous-file" content="">
+<meta name="prd-approved" content="true">
+<title>Studio multi-engine, portátil e achável</title>
+<style>
+/* Tokens de produto do ivt-ui-brand (ivt-lib/src/globals.css). Cole este bloco inteiro. */
+:root {
+  --background:#FFFFFF; --foreground:#18181B; --card:#FFFFFF; --soft:#FAFAFA;
+  --accent:#ECFEFF; --accent-foreground:#18181B;
+  --primary:#3B8091; --primary-foreground:#FAFAFA; --secondary:#F4F4F5;
+  --muted-foreground:#71717A; --border:#E4E4E7; --input:#E4E4E7; --ring:#3F3F46;
+  --destructive:#DC2626; --destructive-foreground:#FEF2F2;
+  --positive:#16A34A; --positive-foreground:#F0FDF4;
+  --warning:#EA580C; --warning-foreground:#FFF7ED;
+  --info:#2563EB; --info-foreground:#EFF6FF;
+  --content-high:#0F172A; --content-medium:#334155;
+  --chart-1:#2a9d90; --chart-2:#E76E50; --chart-3:#274754; --chart-4:#e8c468; --chart-5:#f4a462;
+  --page-bg:#EEF2F6;
+  --radius-sm:6px; --radius-md:10px; --radius-lg:14px;
+  /* Tons derivados — usados só como borda/tint em callouts e severidade (nunca cor de marca) */
+  --tint-purple:#7c3aed; --tint-purple-bg:#f1ebfc; --tint-info-border:#bfdbfe; --tint-info-fg:#1e3a5f;
+  --tint-danger-border:#fecaca; --tint-danger-fg:#7f1d1d; --tint-primary-border:#a5eef0; --tint-primary-fg:#134e4a;
+  --tint-warning-border:#f3ceb2; --tint-warning-fg:#9a3f12;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; }
+body {
+  background:var(--page-bg); color:var(--foreground);
+  font-family:'Lato',-apple-system,'Segoe UI',sans-serif; font-size:16px; line-height:1.6;
+}
+.mono { font-family:'IBM Plex Mono',ui-monospace,monospace; }
+.shell { display:grid; grid-template-columns:248px minmax(0,760px); gap:32px; max-width:1100px; margin:0 auto; padding:40px 24px 96px; align-items:start; }
+
+/* ---------- Sidebar (dashboard) ---------- */
+.sidebar { position:sticky; top:24px; display:flex; flex-direction:column; gap:20px; }
+.brandmark { display:flex; align-items:center; gap:10px; }
+.brandmark .sq { width:28px; height:28px; border-radius:var(--radius-sm); background:var(--primary); color:var(--primary-foreground); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14.5px; }
+.brandmark .eyebrow { font-size:12.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted-foreground); font-weight:700; }
+
+.tier-badge { display:inline-flex; align-items:center; gap:6px; align-self:flex-start; padding:4px 11px; border-radius:999px; background:var(--primary); color:var(--primary-foreground); font-size:13px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; }
+
+nav.toc { display:flex; flex-direction:column; gap:2px; padding:12px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+nav.toc a { display:flex; align-items:center; gap:10px; padding:7px 8px; border-radius:var(--radius-sm); color:var(--content-medium); font-size:14.5px; font-weight:600; text-decoration:none; border-left:2px solid transparent; }
+nav.toc a:hover, nav.toc a:focus-visible { background:var(--accent); color:var(--primary); border-left-color:var(--primary); }
+nav.toc a:focus-visible { outline:2px solid var(--ring); outline-offset:-2px; }
+nav.toc a .mark { width:18px; height:18px; border-radius:5px; background:var(--accent); color:var(--primary); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; flex-shrink:0; }
+
+.stat-stack { display:flex; flex-direction:column; gap:8px; }
+.stat-card { padding:11px 12px; background:var(--card); border:1px solid var(--border); border-radius:var(--radius-md); }
+.stat-card .label { font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted-foreground); font-weight:700; }
+.stat-card .value { font-variant-numeric:tabular-nums; font-size:22px; font-weight:800; color:var(--content-high); margin-top:2px; }
+.stat-card .sub { font-size:13px; color:var(--muted-foreground); margin-top:1px; }
+.bar { display:flex; gap:3px; margin-top:8px; height:6px; }
+.bar i { flex:1; border-radius:3px; background:var(--border); display:block; }
+.bar i.on { background:var(--positive); }
+.bar i.off { background:var(--destructive); }
+
+.approval-pill { display:flex; align-items:center; gap:8px; padding:9px 12px; border-radius:var(--radius-md); background:var(--warning-foreground); border:1px solid var(--tint-warning-border); }
+.approval-pill .dot { width:8px; height:8px; border-radius:50%; background:var(--warning); flex-shrink:0; }
+.approval-pill span.txt { font-size:14px; font-weight:700; color:var(--tint-warning-fg); }
+
+.timebox { display:flex; gap:8px; align-items:flex-start; padding:10px 12px; border-radius:var(--radius-md); background:var(--soft); border:1px solid var(--border); font-size:13.5px; color:var(--content-medium); }
+.timebox .ico { flex-shrink:0; color:var(--muted-foreground); font-weight:800; }
+
+/* ---------- Main column ---------- */
+main { display:flex; flex-direction:column; gap:24px; min-width:0; }
+.doc-header h1 { font-size:30px; font-weight:800; color:var(--content-high); letter-spacing:-.01em; text-wrap:balance; }
+.doc-header p.dek { margin-top:6px; font-size:15.5px; color:var(--muted-foreground); max-width:62ch; }
+
+.card { background:var(--card); border:1px solid var(--border); border-top:3px solid var(--primary); border-radius:var(--radius-lg); padding:24px; }
+.section-head { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+.section-head .letter { width:34px; height:34px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:17px; flex-shrink:0; background:var(--accent); color:var(--primary); }
+.section-head h2 { font-size:19px; font-weight:800; color:var(--content-high); }
+.section-head .count { margin-left:auto; font-size:13px; color:var(--muted-foreground); font-variant-numeric:tabular-nums; }
+
+.card > .body { max-width:66ch; color:var(--content-medium); }
+.card h3 { font-size:14px; font-weight:800; letter-spacing:.03em; text-transform:uppercase; color:var(--muted-foreground); margin:18px 0 8px; }
+.card h3:first-of-type { margin-top:16px; }
+
+.chip-row { display:flex; flex-wrap:wrap; gap:8px; }
+.chip { display:inline-flex; align-items:center; gap:6px; padding:5px 10px; border-radius:999px; background:var(--secondary); color:var(--content-medium); font-size:13.5px; font-weight:600; }
+
+/* User story cards */
+.user-story { border:1px solid var(--border); border-radius:var(--radius-md); padding:14px 16px; margin:0 0 10px; background:var(--soft); }
+.user-story:last-child { margin-bottom:0; }
+.us-head { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:6px; }
+.us-id { font-size:12.5px; font-weight:800; padding:3px 8px; border-radius:6px; background:var(--content-high); color:var(--primary-foreground); letter-spacing:.02em; }
+.badge { display:inline-flex; align-items:center; gap:5px; font-size:12.5px; font-weight:700; padding:3px 9px; border-radius:999px; letter-spacing:.01em; }
+.badge .dot { width:6px; height:6px; border-radius:50%; }
+.badge-ready { background:var(--positive-foreground); color:var(--positive); }
+.badge-ready .dot { background:var(--positive); }
+.badge-blocked { background:var(--warning-foreground); color:var(--warning); }
+.badge-blocked .dot { background:var(--warning); }
+.badge-repo { background:var(--secondary); color:var(--muted-foreground); font-weight:600; }
+.user-story > p.story-text { font-size:15.5px; color:var(--content-high); font-weight:600; margin-bottom:8px; }
+.user-story .ac { list-style:none; display:flex; flex-direction:column; gap:5px; }
+.user-story .ac li { display:flex; gap:8px; font-size:14px; color:var(--content-medium); align-items:flex-start; }
+.user-story .ac li::before { content:"✓"; color:var(--positive); font-weight:800; flex-shrink:0; margin-top:1px; }
+
+/* Requirements checklist */
+.req-checklist { list-style:none; display:flex; flex-direction:column; gap:6px; margin-top:4px; }
+.rc { display:flex; gap:10px; align-items:flex-start; padding:9px 12px; border-radius:var(--radius-sm); font-size:14.5px; background:var(--soft); border:1px solid var(--border); }
+.rc .mark { flex-shrink:0; width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12.5px; font-weight:800; margin-top:1px; }
+.rc-pass .mark { background:var(--positive-foreground); color:var(--positive); }
+.rc-fail .mark { background:var(--destructive-foreground); color:var(--destructive); }
+.rc-pass { color:var(--content-medium); }
+.rc-fail { color:var(--content-high); font-weight:600; }
+
+/* Open questions */
+.open-questions { list-style:none; display:flex; flex-direction:column; gap:6px; margin-top:4px; }
+.oq { display:flex; gap:10px; align-items:flex-start; padding:10px 12px; border-radius:0 var(--radius-sm) var(--radius-sm) 0; border-left:3px solid var(--border); background:var(--soft); font-size:14.5px; color:var(--content-medium); }
+.oq .pill { flex-shrink:0; font-family:'IBM Plex Mono',monospace; font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:2px 7px; border-radius:5px; margin-top:1px; }
+.oq-answered { border-left-color:var(--positive); }
+.oq-answered .pill { background:var(--positive-foreground); color:var(--positive); }
+.oq-po { border-left-color:var(--info); }
+.oq-po .pill { background:var(--info-foreground); color:var(--info); }
+.oq-se { border-left-color:var(--tint-purple); }
+.oq-se .pill { background:var(--tint-purple-bg); color:var(--tint-purple); }
+.oq-parked { border-left-color:var(--warning); }
+.oq-parked .pill { background:var(--warning-foreground); color:var(--warning); }
+
+/* Callouts */
+.callout { display:flex; gap:10px; padding:13px 15px; border-radius:var(--radius-md); border:1px solid transparent; font-size:14.5px; }
+.callout .ico { flex-shrink:0; width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13.5px; font-weight:800; margin-top:1px; }
+.callout ul { margin:0; padding-left:16px; }
+.callout-assumption { background:var(--info-foreground); border-color:var(--tint-info-border); color:var(--tint-info-fg); }
+.callout-assumption .ico { background:var(--info-foreground); color:var(--info); }
+.callout-risk { background:var(--destructive-foreground); border-color:var(--tint-danger-border); color:var(--tint-danger-fg); }
+.callout-risk .ico { background:var(--destructive-foreground); color:var(--destructive); }
+.callout-decision { background:var(--accent); border-color:var(--tint-primary-border); color:var(--tint-primary-fg); }
+.callout-decision .ico { background:var(--accent); color:var(--primary); }
+
+.verify-box { background:var(--content-high); color:var(--border); border-radius:var(--radius-md); padding:14px 16px; font-size:14px; font-family:'IBM Plex Mono',monospace; overflow-x:auto; }
+
+@media (max-width:760px) {
+  .shell { grid-template-columns:1fr; }
+  .sidebar { position:static; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<aside class="sidebar">
+  <div class="brandmark">
+    <span class="sq">P</span>
+    <div>
+      <div class="eyebrow">/prd · joão-de-barro</div>
+      <span class="tier-badge">Full</span>
+    </div>
+  </div>
+
+  <nav class="toc" aria-label="Navegação do PRD">
+    <a href="#contexto"><span class="mark">C</span> Contexto</a>
+    <a href="#requisitos"><span class="mark">R</span> Requisitos</a>
+    <a href="#impacto"><span class="mark">I</span> Impacto</a>
+    <a href="#alinhamento"><span class="mark">A</span> Alinhamento</a>
+  </nav>
+
+  <div class="stat-stack" aria-label="Status do PRD">
+    <div class="stat-card">
+      <div class="label">User Stories</div>
+      <div class="value">13</div>
+      <div class="sub">4 ready · 9 blocked</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Open Questions</div>
+      <div class="value">9</div>
+      <div class="sub">6 answered · 1 po · 2 parked</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Requirements Checklist</div>
+      <div class="value">6<span style="color:var(--muted-foreground);font-size:14.5px;">/6</span></div>
+      <div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
+    </div>
+  </div>
+
+  <div class="approval-pill">
+    <span class="dot"></span>
+    <span class="txt">Draft — aguardando aprovação</span>
+  </div>
+
+  <div class="timebox">
+    <span class="ico">⏱</span>
+    <span>Time-box: fecha em 1 sessão. Escopo maior que isso = subir de tier.</span>
+  </div>
+</aside>
+
+<main>
+  <div class="doc-header">
+    <h1>Studio multi-engine, portátil e achável</h1>
+    <p class="dek">Tirar o projeto da condição de "funciona na máquina do autor, com um motor só, e ninguém acha" — sem perder o que ele é.</p>
+  </div>
+
+  <section class="card" id="contexto">
+    <div class="section-head"><span class="letter">C</span><h2>Contexto</h2></div>
+    <div class="body">
+      <p>O projeto é hoje um marketplace de 11 plugins declarativos para Claude Code que faz geração visual <strong>keyless</strong> — imagens, decks, criativos sociais, infográficos e sprites — roteando pela assinatura do usuário através do <code class="mono">polyagent-mcp</code>, nunca por <code class="mono">OPENAI_API_KEY</code>. Essa identidade não está em questão e não muda.</p>
+      <p>O que está em questão é a distância entre o que o projeto <em>é</em> e o que ele <em>consegue entregar a um terceiro</em>. Três lacunas concretas, levantadas no mapeamento do repo: o motor não sabe que existem dois motores; a instalação assume um ambiente que só existe na máquina do autor; e o nome amarra o projeto a um único fornecedor e não é encontrável.</p>
+    </div>
+    <h3>Personas / Actors</h3>
+    <div class="chip-row">
+      <span class="chip">Autor/mantenedor — conhece o setup de cor; hoje é o único que consegue rodar tudo</span>
+      <span class="chip">Usuário novo — clona do GitHub numa máquina limpa, com ou sem assinaturas</span>
+      <span class="chip">Usuário sem motor — quer o prompt pronto pra colar no chat, por escolha ou por falta de assinatura</span>
+      <span class="chip">Skill downstream — consome o motor de imagem e precisa pedir o motor certo</span>
+    </div>
+  </section>
+
+  <section class="card" id="requisitos">
+    <div class="section-head"><span class="letter">R</span><h2>Requisitos</h2></div>
+    <h3>Feature Index</h3>
+    <ol>
+      <li><a href="features/multi-engine.html">Multi-engine consciente</a> — Must — o motor de imagem passa a conhecer, declarar e rotear entre Codex e Grok, com fonte única de regra. <strong>US-001 a US-004.</strong></li>
+      <li><a href="features/portabilidade.html">Portabilidade e setup honesto</a> — Must — roda numa máquina limpa nos três SOs, diz o que falta em vez de falhar em silêncio, e trata prompt-only como modo de primeira classe. <strong>US-005 a US-010.</strong></li>
+      <li><a href="features/rename-descoberta.html">Rename e descoberta</a> — Should — nome novo que não amarra a fornecedor, rename total sem alias, e descrições escritas pra ser achado no Google e no GitHub. <strong>US-011 a US-013.</strong></li>
+    </ol>
+    <h3>Ordem de execução</h3>
+    <div class="callout callout-decision">
+      <span class="ico">i</span>
+      <div>Features 1 e 2 vêm <strong>antes</strong> da 3. Renomear primeiro significaria renomear duas vezes: o rename toca 46 invocações cruzadas em 13 <code class="mono">SKILL.md</code>, exatamente os arquivos que as features 1 e 2 vão editar.</div>
+    </div>
+  </section>
+
+  <section class="card" id="impacto">
+    <div class="section-head"><span class="letter">I</span><h2>Impacto esperado</h2></div>
+    <h3>Problem &amp; Goals</h3>
+    <ul>
+      <li><strong>O motor é cego aos motores.</strong> O parâmetro <code class="mono">engine</code> existe no <code class="mono">generate_image</code> do bridge mas não é declarado em nenhuma das duas skills de <code class="mono">codex-image</code> (<code class="mono">generate/SKILL.md:35</code>, <code class="mono">edit/SKILL.md:30</code>). A escolha Grok×Codex vive como prosa em quatro lugares downstream que podem divergir entre si. Meta: uma fonte única de regra, consultável, com override explícito.</li>
+      <li><strong>A instalação não é reproduzível.</strong> <code class="mono">CURSOR_MCP_BRIDGE_DIST</code> é interpolado cru em <code class="mono">codex-image/.mcp.json:5</code> sem verificação alguma: se a variável não existe, o MCP não sobe e nada explica o porquê. O login do Codex nunca é checado. Meta: um terceiro clona, roda um diagnóstico, e o diagnóstico diz exatamente o que falta e como resolver.</li>
+      <li><strong>Prompt-only é tratado como falha.</strong> Hoje a degradação para "cole no chatgpt.com/images" só acontece quando algo quebra. Meta: virar escolha deliberada do usuário, disponível mesmo com motor instalado.</li>
+      <li><strong>O upstream já fez o mesmo movimento.</strong> O bridge deixou de se chamar pelo nome de um fornecedor (<code class="mono">cursor</code>) e passou a se chamar pelo que faz (<code class="mono">polyagent</code>) — exatamente o argumento da feature 3 aplicado um nível abaixo. Isso torna manter <code class="mono">codex-studio</code> mais incoerente ainda: o projeto se nomearia por um motor que nem seu próprio roteador nomeia mais.</li>
+      <li><strong>O nome esconde o projeto.</strong> <code class="mono">codex-studio</code> amarra a identidade a um fornecedor que já não é o único motor, e não é um termo que alguém busque. Meta: nome novo e descrições que façam o projeto ser encontrado por quem procura o problema que ele resolve.</li>
+    </ul>
+    <h3>Non-Goals</h3>
+    <div class="chip-row">
+      <span class="chip">Adicionar um terceiro motor além de Codex e Grok</span>
+      <span class="chip">Suporte a <code class="mono">OPENAI_API_KEY</code> ou qualquer via com chave</span>
+      <span class="chip">Reimplementar as ~50 tools do pixel-plugin dentro do spritekit</span>
+      <span class="chip">Distribuição via npm ou registry próprio</span>
+      <span class="chip">Alias de compatibilidade para os IDs antigos <code class="mono">codex-*</code></span>
+      <span class="chip">Mudar a arquitetura de 3 camadas de plugins</span>
+    </div>
+    <h3>Success Metrics</h3>
+    <ul>
+      <li>Um terceiro, numa máquina Linux limpa, sai do <code class="mono">git clone</code> a uma imagem gerada seguindo só o README — sem perguntar nada ao autor.</li>
+      <li>Nenhuma skill decide motor por conta própria: toda escolha rastreia até a fonte única de regra.</li>
+      <li>Toda dependência ausente produz uma mensagem que nomeia o que falta e o comando que resolve — zero falha silenciosa.</li>
+      <li>Busca pelo problema ("keyless image generation claude code", "pixel art plugin claude code") retorna o repositório na primeira página.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="alinhamento">
+    <div class="section-head"><span class="letter">A</span><h2>Alinhamento</h2><span class="count">6/6 pass</span></div>
+
+    <h3>High-Level Risks &amp; Dependencies</h3>
+    <div class="callout callout-risk">
+      <span class="ico">!</span>
+      <div><ul>
+        <li><strong>macOS e Windows sem validação real</strong> — não há máquina para testar. Mitigação: portabilidade por construção (<code class="mono">pathlib</code>, zero path POSIX hardcoded, zero shell-ismo) + revisão contra checklist; o AC declara Linux validado e os outros dois por construção. Ver Assumption Lock.</li>
+        <li><strong>O rename é irreversível na prática</strong> — 11 diretórios, 11 <code class="mono">plugin.json</code>, <code class="mono">marketplace.json</code> e 46 invocações cruzadas. Uma referência órfã quebra a cadeia de dependência entre plugins em runtime, não em build (não há CI nem teste neste repo). Mitigação: varredura de órfãos como AC explícito.</li>
+        <li><strong>O mecanismo documentado não é o mecanismo em uso</strong> — medido em 2026-09-13, o caminho de instalação descrito no README nunca foi exercitado de ponta a ponta — nem na máquina do autor (evidência em <a href="features/portabilidade.html">portabilidade</a>). Mitigação: a US-005 verifica esse caminho especificamente.</li>
+        <li><strong>Dependência externa do <code class="mono">polyagent-mcp</code></strong> — vive fora deste repo e é pré-requisito de tudo. O projeto não controla sua instalação, só pode diagnosticá-la. <strong>E o contrato se move:</strong> em 2026-09-14 o bridge renomeou de <code class="mono">cursor-mcp-bridge</code> para <code class="mono">polyagent-mcp</code> (v0.5.0) e trocou todo o prefixo de env var <code class="mono">CURSOR_*</code> → <code class="mono">POLYAGENT_*</code>. O repo ficou com 47 ocorrências do nome antigo, em 30 linhas de 8 arquivos. Mitigação: a feature 2 alinha as referências; o diagnóstico da US-005 nomeia a versão esperada do bridge em vez de assumir.</li>
+        <li><strong>Ausência de rede de segurança</strong> — o repo não tem build, test, lint nem CI. Qualquer edição em massa (o rename, sobretudo) é validada por inspeção, não por suíte.</li>
+      </ul></div>
+    </div>
+
+    <h3>Architecture &amp; Diagrams</h3>
+    <div class="body"><p>A arquitetura de 3 camadas (motor <code class="mono">codex-image</code> → genéricos → especialistas) e a família game dev (base pai <code class="mono">codex-sprite</code> + especialistas de estilo) permanecem como estão. Este PRD muda <em>o que o motor sabe</em> (feature 1), <em>o que o projeto verifica sobre o ambiente</em> (feature 2) e <em>como tudo se chama</em> (feature 3) — nenhuma das três reorganiza as camadas. Sem diagramas nesta versão: a mudança é de contrato e nomenclatura, não de topologia.</p></div>
+
+    <h3>Requirements Checklist</h3>
+    <ul class="req-checklist">
+      <li class="rc rc-pass"><span class="mark">✓</span>Estão definidos os critérios de escolha de motor para todos os tipos de asset que o projeto gera (sprite, retrato, cena, slide, criativo social, infográfico)?</li>
+      <li class="rc rc-pass"><span class="mark">✓</span>Estão definidos os limites de escopo e os Non-Goals, incluindo o que fica fora da portabilidade?</li>
+      <li class="rc rc-pass"><span class="mark">✓</span>Estão definidos os critérios de erro observáveis para cada dependência externa ausente (bridge, login, Aseprite, Pillow, python-pptx)?</li>
+      <li class="rc rc-pass"><span class="mark">✓</span>Estão definidos os critérios que um nome candidato precisa satisfazer para ser aceito, de forma que a escolha não dependa de gosto?</li>
+      <li class="rc rc-pass"><span class="mark">✓</span>Está definido o critério de conclusão do rename que distingue "renomeado" de "renomeado sem referência órfã"?</li>
+      <li class="rc rc-pass"><span class="mark">✓</span>Está definido, de forma testável e sem efeito colateral, o que significa um motor estar "disponível"? — resolvido em <a href="features/multi-engine.html">multi-engine</a>: binário resolvível + diretório de credencial presente, com a cadeia env → config → PATH → locais conhecidos já usada no <code class="mono">spritekit.py</code>.</li>
+    </ul>
+
+    <h3>Assumption Locks / Assumptions</h3>
+    <div class="callout callout-assumption">
+      <span class="ico">i</span>
+      <div><strong>ASSUMPTION-LOCK:</strong> o código escrito de forma portátil (<code class="mono">pathlib</code>, sem path POSIX hardcoded, sem shell-ismo, config dir resolvido por SO) funciona em macOS e Windows sem validação empírica. Só Linux será validado de fato. Se quebrar em qualquer um dos dois, dispara um <code class="mono">update</code> deste PRD — não um remendo silencioso.</div>
+    </div>
+    <div class="callout callout-assumption">
+      <span class="ico">i</span>
+      <div><strong>ASSUMPTION:</strong> o projeto ainda não tem base de usuários externa, então o rename total sem alias de compatibilidade custa barato agora. Decisão explícita do usuário em 2026-09-13.</div>
+    </div>
+
+    <div class="callout callout-decision">
+      <span class="ico">i</span>
+      <div><strong>DECISÃO — cap de volume aceito com justificativa.</strong> As três features ficam em 125, 151 e 116 lines-equivalent, acima do cap de 60 do tier full. Aceito deliberadamente pelo usuário em 2026-09-14: o excesso é evidência medida — o critério testável de disponibilidade de motor, a verificação de colisão dos sete nomes candidatos e os 58 critérios de aceitação — não prosa. Podar até o cap removeria justamente as âncoras <code class="mono">arquivo:linha</code> que tornam os ACs verificáveis. Reavaliar se uma feature crescer com conteúdo que não seja evidência.</div>
+    </div>
+
+    <h3>Global Open Questions</h3>
+    <ul class="open-questions">
+      <li class="oq oq-answered"><span class="pill">answered</span> Quais motores entram? — Codex (gpt-image-2) e Grok (grok-4.5-build), os dois que o usuário já tem instalados. Terceiro motor é Non-Goal.</li>
+      <li class="oq oq-answered"><span class="pill">answered</span> Quais sistemas operacionais? — Linux, macOS e Windows. Linux validado empiricamente; os outros dois por construção (ver Assumption Lock).</li>
+      <li class="oq oq-answered"><span class="pill">answered</span> O rename mantém compatibilidade com os IDs antigos? — Não. Rename total, sem alias, com CHANGELOG avisando.</li>
+      <li class="oq oq-answered"><span class="pill">answered</span> Prompt-only é só fallback de falha? — Não. É opção deliberada do usuário, disponível mesmo com motor instalado e funcionando.</li>
+      <li class="oq oq-answered"><span class="pill">answered</span> Motor preferido ausente: troca sozinho ou pergunta? — Pergunta e espera confirmação; a qualidade do asset muda, então a decisão é do usuário. Prompt-only é pedido por <code class="mono">engine: prompt</code>, opção válida mesmo com motor disponível.</li>
+      <li class="oq oq-po"><span class="pill">PO</span> Qual o nome novo? — critérios fixados nesta versão (não amarrar a fornecedor, achável, disponível no GitHub); shortlist e verificação de disponibilidade são entregáveis da US-011, escolha final do usuário.</li>
+      <li class="oq oq-answered"><span class="pill">answered</span> Como detectar que um motor está disponível sem pagar o custo de uma geração de teste? — binário resolvível + diretório de credencial (<code class="mono">~/.codex/auth.json</code>, <code class="mono">~/.grok</code>), sem rede. Detalhe em <a href="features/multi-engine.html">multi-engine</a>.</li>
+      <li class="oq oq-parked"><span class="pill">parked</span> Como distribuir além do <code class="mono">git clone</code> (npm, registry próprio)? — Non-Goal desta versão; o marketplace declarativo já é o canal de instalação. Decisão tática: README documenta só clone + <code class="mono">/plugin marketplace add</code>.</li>
+      <li class="oq oq-parked"><span class="pill">parked</span> Vale adicionar CI mínimo (validar JSON dos plugins, checar referências cruzadas órfãs)? — fora do escopo declarado, mas o rename aumenta o valor disso. Decisão tática: a varredura de órfãos da US-012 roda manual nesta versão; CI fica como próximo passo registrado.</li>
+    </ul>
+
+    <h3>Verification</h3>
+    <div class="verify-box">Aceitação end-to-end do épico: numa máquina Linux limpa (container ou VM sem nada do ambiente do autor), <code class="mono">git clone</code> do repo, seguir o README do zero, rodar o diagnóstico da US-005 e confirmar que ele lista corretamente o que está presente e ausente; então gerar um sprite (esperado: Grok) e um retrato (esperado: Codex) confirmando que a skill informa qual motor usou; desinstalar um dos motores e repetir, confirmando que a skill <strong>pede confirmação</strong> antes de trocar em vez de trocar sozinha; desinstalar os dois e confirmar que o modo prompt-only entrega o prompt pronto sem erro. Por fim, após o rename, varrer o repo por qualquer ocorrência do nome antigo e por invocação <code class="mono">&lt;plugin&gt;:&lt;skill&gt;</code> apontando para plugin inexistente — o resultado esperado é vazio nos dois casos.</div>
+  </section>
+</main>
+</div>
+</body>
+</html>

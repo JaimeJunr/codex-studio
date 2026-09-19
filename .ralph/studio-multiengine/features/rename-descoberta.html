@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Feature — Rename e descoberta</title>
+<style>
+/* Tokens de produto do ivt-ui-brand (ivt-lib/src/globals.css). Cole este bloco inteiro. */
+:root {
+  --background:#FFFFFF; --foreground:#18181B; --card:#FFFFFF; --soft:#FAFAFA;
+  --accent:#ECFEFF; --accent-foreground:#18181B;
+  --primary:#3B8091; --primary-foreground:#FAFAFA; --secondary:#F4F4F5;
+  --muted-foreground:#71717A; --border:#E4E4E7; --input:#E4E4E7; --ring:#3F3F46;
+  --destructive:#DC2626; --destructive-foreground:#FEF2F2;
+  --positive:#16A34A; --positive-foreground:#F0FDF4;
+  --warning:#EA580C; --warning-foreground:#FFF7ED;
+  --info:#2563EB; --info-foreground:#EFF6FF;
+  --content-high:#0F172A; --content-medium:#334155;
+  --chart-1:#2a9d90; --chart-2:#E76E50; --chart-3:#274754; --chart-4:#e8c468; --chart-5:#f4a462;
+  --page-bg:#EEF2F6;
+  --radius-sm:6px; --radius-md:10px; --radius-lg:14px;
+  /* Tons derivados — usados só como borda/tint em callouts e severidade (nunca cor de marca) */
+  --tint-purple:#7c3aed; --tint-purple-bg:#f1ebfc; --tint-info-border:#bfdbfe; --tint-info-fg:#1e3a5f;
+  --tint-danger-border:#fecaca; --tint-danger-fg:#7f1d1d; --tint-primary-border:#a5eef0; --tint-primary-fg:#134e4a;
+  --tint-warning-border:#f3ceb2; --tint-warning-fg:#9a3f12;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; }
+body {
+  background:var(--page-bg); color:var(--foreground);
+  font-family:'Lato',-apple-system,'Segoe UI',sans-serif; font-size:16px; line-height:1.6;
+}
+.mono { font-family:'IBM Plex Mono',ui-monospace,monospace; }
+.shell { display:grid; grid-template-columns:248px minmax(0,760px); gap:32px; max-width:1100px; margin:0 auto; padding:40px 24px 96px; align-items:start; }
+
+/* ---------- Sidebar (dashboard) ---------- */
+.sidebar { position:sticky; top:24px; display:flex; flex-direction:column; gap:20px; }
+.brandmark { display:flex; align-items:center; gap:10px; }
+.brandmark .sq { width:28px; height:28px; border-radius:var(--radius-sm); background:var(--primary); color:var(--primary-foreground); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14.5px; }
+.brandmark .eyebrow { font-size:12.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted-foreground); font-weight:700; }
+
+.tier-badge { display:inline-flex; align-items:center; gap:6px; align-self:flex-start; padding:4px 11px; border-radius:999px; background:var(--primary); color:var(--primary-foreground); font-size:13px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; }
+
+nav.toc { display:flex; flex-direction:column; gap:2px; padding:12px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+nav.toc a { display:flex; align-items:center; gap:10px; padding:7px 8px; border-radius:var(--radius-sm); color:var(--content-medium); font-size:14.5px; font-weight:600; text-decoration:none; border-left:2px solid transparent; }
+nav.toc a:hover, nav.toc a:focus-visible { background:var(--accent); color:var(--primary); border-left-color:var(--primary); }
+nav.toc a:focus-visible { outline:2px solid var(--ring); outline-offset:-2px; }
+nav.toc a .mark { width:18px; height:18px; border-radius:5px; background:var(--accent); color:var(--primary); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; flex-shrink:0; }
+
+.stat-stack { display:flex; flex-direction:column; gap:8px; }
+.stat-card { padding:11px 12px; background:var(--card); border:1px solid var(--border); border-radius:var(--radius-md); }
+.stat-card .label { font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted-foreground); font-weight:700; }
+.stat-card .value { font-variant-numeric:tabular-nums; font-size:22px; font-weight:800; color:var(--content-high); margin-top:2px; }
+.stat-card .sub { font-size:13px; color:var(--muted-foreground); margin-top:1px; }
+.bar { display:flex; gap:3px; margin-top:8px; height:6px; }
+.bar i { flex:1; border-radius:3px; background:var(--border); display:block; }
+.bar i.on { background:var(--positive); }
+.bar i.off { background:var(--destructive); }
+
+.approval-pill { display:flex; align-items:center; gap:8px; padding:9px 12px; border-radius:var(--radius-md); background:var(--warning-foreground); border:1px solid var(--tint-warning-border); }
+.approval-pill .dot { width:8px; height:8px; border-radius:50%; background:var(--warning); flex-shrink:0; }
+.approval-pill span.txt { font-size:14px; font-weight:700; color:var(--tint-warning-fg); }
+
+.timebox { display:flex; gap:8px; align-items:flex-start; padding:10px 12px; border-radius:var(--radius-md); background:var(--soft); border:1px solid var(--border); font-size:13.5px; color:var(--content-medium); }
+.timebox .ico { flex-shrink:0; color:var(--muted-foreground); font-weight:800; }
+
+/* ---------- Main column ---------- */
+main { display:flex; flex-direction:column; gap:24px; min-width:0; }
+.doc-header h1 { font-size:30px; font-weight:800; color:var(--content-high); letter-spacing:-.01em; text-wrap:balance; }
+.doc-header p.dek { margin-top:6px; font-size:15.5px; color:var(--muted-foreground); max-width:62ch; }
+
+.card { background:var(--card); border:1px solid var(--border); border-top:3px solid var(--primary); border-radius:var(--radius-lg); padding:24px; }
+.section-head { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+.section-head .letter { width:34px; height:34px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:17px; flex-shrink:0; background:var(--accent); color:var(--primary); }
+.section-head h2 { font-size:19px; font-weight:800; color:var(--content-high); }
+.section-head .count { margin-left:auto; font-size:13px; color:var(--muted-foreground); font-variant-numeric:tabular-nums; }
+
+.card > .body { max-width:66ch; color:var(--content-medium); }
+.card h3 { font-size:14px; font-weight:800; letter-spacing:.03em; text-transform:uppercase; color:var(--muted-foreground); margin:18px 0 8px; }
+.card h3:first-of-type { margin-top:16px; }
+
+.chip-row { display:flex; flex-wrap:wrap; gap:8px; }
+.chip { display:inline-flex; align-items:center; gap:6px; padding:5px 10px; border-radius:999px; background:var(--secondary); color:var(--content-medium); font-size:13.5px; font-weight:600; }
+
+/* User story cards */
+.user-story { border:1px solid var(--border); border-radius:var(--radius-md); padding:14px 16px; margin:0 0 10px; background:var(--soft); }
+.user-story:last-child { margin-bottom:0; }
+.us-head { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:6px; }
+.us-id { font-size:12.5px; font-weight:800; padding:3px 8px; border-radius:6px; background:var(--content-high); color:var(--primary-foreground); letter-spacing:.02em; }
+.badge { display:inline-flex; align-items:center; gap:5px; font-size:12.5px; font-weight:700; padding:3px 9px; border-radius:999px; letter-spacing:.01em; }
+.badge .dot { width:6px; height:6px; border-radius:50%; }
+.badge-ready { background:var(--positive-foreground); color:var(--positive); }
+.badge-ready .dot { background:var(--positive); }
+.badge-blocked { background:var(--warning-foreground); color:var(--warning); }
+.badge-blocked .dot { background:var(--warning); }
+.badge-repo { background:var(--secondary); color:var(--muted-foreground); font-weight:600; }
+.user-story > p.story-text { font-size:15.5px; color:var(--content-high); font-weight:600; margin-bottom:8px; }
+.user-story .ac { list-style:none; display:flex; flex-direction:column; gap:5px; }
+.user-story .ac li { display:flex; gap:8px; font-size:14px; color:var(--content-medium); align-items:flex-start; }
+.user-story .ac li::before { content:"✓"; color:var(--positive); font-weight:800; flex-shrink:0; margin-top:1px; }
+
+/* Requirements checklist */
+.req-checklist { list-style:none; display:flex; flex-direction:column; gap:6px; margin-top:4px; }
+.rc { display:flex; gap:10px; align-items:flex-start; padding:9px 12px; border-radius:var(--radius-sm); font-size:14.5px; background:var(--soft); border:1px solid var(--border); }
+.rc .mark { flex-shrink:0; width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12.5px; font-weight:800; margin-top:1px; }
+.rc-pass .mark { background:var(--positive-foreground); color:var(--positive); }
+.rc-fail .mark { background:var(--destructive-foreground); color:var(--destructive); }
+.rc-pass { color:var(--content-medium); }
+.rc-fail { color:var(--content-high); font-weight:600; }
+
+/* Open questions */
+.open-questions { list-style:none; display:flex; flex-direction:column; gap:6px; margin-top:4px; }
+.oq { display:flex; gap:10px; align-items:flex-start; padding:10px 12px; border-radius:0 var(--radius-sm) var(--radius-sm) 0; border-left:3px solid var(--border); background:var(--soft); font-size:14.5px; color:var(--content-medium); }
+.oq .pill { flex-shrink:0; font-family:'IBM Plex Mono',monospace; font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:2px 7px; border-radius:5px; margin-top:1px; }
+.oq-answered { border-left-color:var(--positive); }
+.oq-answered .pill { background:var(--positive-foreground); color:var(--positive); }
+.oq-po { border-left-color:var(--info); }
+.oq-po .pill { background:var(--info-foreground); color:var(--info); }
+.oq-se { border-left-color:var(--tint-purple); }
+.oq-se .pill { background:var(--tint-purple-bg); color:var(--tint-purple); }
+.oq-parked { border-left-color:var(--warning); }
+.oq-parked .pill { background:var(--warning-foreground); color:var(--warning); }
+
+/* Callouts */
+.callout { display:flex; gap:10px; padding:13px 15px; border-radius:var(--radius-md); border:1px solid transparent; font-size:14.5px; }
+.callout .ico { flex-shrink:0; width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13.5px; font-weight:800; margin-top:1px; }
+.callout ul { margin:0; padding-left:16px; }
+.callout-assumption { background:var(--info-foreground); border-color:var(--tint-info-border); color:var(--tint-info-fg); }
+.callout-assumption .ico { background:var(--info-foreground); color:var(--info); }
+.callout-risk { background:var(--destructive-foreground); border-color:var(--tint-danger-border); color:var(--tint-danger-fg); }
+.callout-risk .ico { background:var(--destructive-foreground); color:var(--destructive); }
+.callout-decision { background:var(--accent); border-color:var(--tint-primary-border); color:var(--tint-primary-fg); }
+.callout-decision .ico { background:var(--accent); color:var(--primary); }
+
+.verify-box { background:var(--content-high); color:var(--border); border-radius:var(--radius-md); padding:14px 16px; font-size:14px; font-family:'IBM Plex Mono',monospace; overflow-x:auto; }
+
+@media (max-width:760px) {
+  .shell { grid-template-columns:1fr; }
+  .sidebar { position:static; }
+}
+</style>
+<style>
+.shell { display:block; max-width:860px; margin:0 auto; padding:40px 24px 96px; }
+</style>
+</head>
+<body>
+<div class="shell">
+<main>
+  <div class="doc-header">
+    <p class="dek"><a href="../prd.html">← Studio multi-engine, portátil e achável</a> · Feature 3 de 3 · Should</p>
+    <h1>Rename e descoberta</h1>
+  </div>
+
+  <section class="card">
+    <div class="section-head"><h2>Feature Overview</h2></div>
+    <div class="body">
+      <p>O nome <code class="mono">codex-studio</code> amarra o projeto a um fornecedor que já não é o único motor — e o upstream fez o mesmo movimento primeiro, saindo de <code class="mono">cursor-mcp-bridge</code> para <code class="mono">polyagent-mcp</code>. Esta feature troca o nome, executa o rename sem deixar referência órfã, e escreve as descrições para que o projeto seja encontrado por quem procura o problema que ele resolve.</p>
+      <p>Vem por último de propósito: toca os mesmos arquivos que as features 1 e 2 editam, incluindo as 46 invocações cruzadas <code class="mono">&lt;plugin&gt;:&lt;skill&gt;</code> em 13 <code class="mono">SKILL.md</code>.</p>
+    </div>
+
+    <h3>User Stories</h3>
+
+    <div class="user-story" id="US-011">
+      <div class="us-head">
+        <span class="us-id">US-011</span>
+        <span class="badge badge-ready">Ready</span>
+        <span class="badge badge-repo">decisão</span>
+      </div>
+      <p class="story-text">Como dono do projeto, quero escolher o nome contra critérios explícitos e disponibilidade verificada, para que a escolha não dependa de gosto nem produza colisão.</p>
+      <ul class="ac">
+        <li>AC: O nome não contém o nome de nenhum fornecedor ou motor (codex, grok, cursor, claude, openai, xai).</li>
+        <li>AC: O nome funciona como prefixo dos 11 plugins sem ficar desajeitado: <code class="mono">&lt;nome&gt;-image</code>, <code class="mono">&lt;nome&gt;-deck</code>, <code class="mono">&lt;nome&gt;-sprite</code>.</li>
+        <li>AC: Verificada a ausência de colisão relevante em GitHub, npm e PyPI, e a ausência de produto comercial homônimo no mesmo espaço (geração visual / IA / ferramenta de dev).</li>
+        <li>AC: O nome é pronunciável e tem grafia única — quem ouve consegue escrever.</li>
+        <li>AC: A escolha final é do usuário; esta US entrega candidatos verificados, não decide sozinha.</li>
+      </ul>
+    </div>
+
+    <div class="user-story" id="US-012">
+      <div class="us-head">
+        <span class="us-id">US-012</span>
+        <span class="badge badge-blocked"><span class="dot"></span>Blocked · US-011, US-007</span>
+        <span class="badge badge-repo">repo inteiro</span>
+      </div>
+      <p class="story-text">Como mantenedor, quero o rename executado sem deixar referência órfã, para que a cadeia de dependência entre plugins continue funcionando.</p>
+      <ul class="ac">
+        <li>AC: Renomeados os 11 diretórios <code class="mono">plugins/codex-*</code>, os 11 <code class="mono">plugin.json</code> (<code class="mono">name</code>, <code class="mono">description</code>, <code class="mono">keywords</code>, <code class="mono">homepage</code>, <code class="mono">repository</code>) e as entradas do <code class="mono">marketplace.json</code>.</li>
+        <li>AC: As 46 invocações cruzadas <code class="mono">codex-X:skill</code> em 13 <code class="mono">SKILL.md</code> apontam para os IDs novos — incluindo as dependências reais que sustentam a arquitetura: <code class="mono">codex-image:generate</code> consumido por 6 skills downstream, <code class="mono">codex-deck</code> por 2, e a herança de <code class="mono">codex-sprite:sprite</code> pelos três especialistas de estilo.</li>
+        <li>AC: Uma varredura por <code class="mono">codex-(image|deck|social|infographic|biz|study|web|sprite|pixel|cartoon|realistic)</code> retorna vazia fora do CHANGELOG.</li>
+        <li>AC: Uma varredura por invocação <code class="mono">&lt;plugin&gt;:&lt;skill&gt;</code> apontando para plugin inexistente retorna vazia — é este o critério que distingue "renomeado" de "renomeado sem órfão".</li>
+        <li>AC: Sem alias de compatibilidade. O CHANGELOG registra a quebra e instrui a reinstalação com os IDs novos.</li>
+        <li>AC: O <code class="mono">CLAUDE.md</code> do projeto reflete os nomes novos — ele descreve a arquitetura por ID de plugin em várias seções.</li>
+      </ul>
+    </div>
+
+    <div class="user-story" id="US-013">
+      <div class="us-head">
+        <span class="us-id">US-013</span>
+        <span class="badge badge-blocked"><span class="dot"></span>Blocked · US-011, US-009</span>
+        <span class="badge badge-repo">docs + metadados</span>
+      </div>
+      <p class="story-text">Como pessoa com o problema que este projeto resolve, quero encontrá-lo buscando pelo problema, para não precisar já saber o nome dele.</p>
+      <ul class="ac">
+        <li>AC: A descrição do repositório e os GitHub topics carregam os termos pelos quais o problema é buscado — geração de imagem sem API key, plugin de Claude Code, pixel art, sprite sheet, deck a partir de prompt — em vez de descrever a arquitetura interna.</li>
+        <li>AC: Cada um dos 11 <code class="mono">plugin.json</code> tem <code class="mono">description</code> e <code class="mono">keywords</code> que descrevem o que aquele plugin faz para o usuário, não como ele foi construído.</li>
+        <li>AC: O README abre dizendo o que o projeto faz e para quem, com o diferencial keyless na primeira tela — não depois da seção de instalação.</li>
+        <li>AC: Os termos escolhidos são os que uma pessoa realmente digitaria, verificados contra busca real e não inventados no escritório.</li>
+      </ul>
+    </div>
+
+    <h3>Functional Requirements</h3>
+    <ol>
+      <li>O nome escolhido é validado contra os critérios da US-011 antes de qualquer arquivo ser tocado — a verificação de colisão precede o rename.</li>
+      <li>O rename é atômico em uma única mudança: diretórios, <code class="mono">plugin.json</code>, <code class="mono">marketplace.json</code> e invocações cruzadas migram juntos, porque um estado intermediário quebra a resolução de plugin em runtime.</li>
+      <li>A conclusão do rename é definida por duas varreduras vazias — nenhum ID antigo fora do CHANGELOG, e nenhuma invocação <code class="mono">&lt;plugin&gt;:&lt;skill&gt;</code> apontando para plugin inexistente.</li>
+      <li>Os termos de descoberta são escolhidos a partir de busca real, não inventados; o nome carrega distinção e os metadados carregam as palavras-chave.</li>
+    </ol>
+
+    <h3>Scope</h3>
+    <div class="chip-row">
+      <span class="chip">In — escolha do nome, rename total, descrições e topics</span>
+      <span class="chip">In — CHANGELOG registrando a quebra</span>
+      <span class="chip">Out — alias de compatibilidade</span>
+      <span class="chip">Out — domínio próprio, site ou logo</span>
+      <span class="chip">Out — publicar em npm ou registry</span>
+      <span class="chip">Out — renomear o repositório do bridge (não é nosso)</span>
+    </div>
+
+    <h3>Technical Considerations</h3>
+    <div class="callout callout-risk">
+      <span class="ico">!</span>
+      <div>
+        <p><strong>Verificação de colisão, medida em 2026-09-14.</strong> Sete candidatos testados; <strong>seis colidem</strong>, dois deles dentro do nosso próprio espaço:</p>
+        <ul>
+          <li><strong>Descartados por colisão:</strong> <code class="mono">easel</code> (EaselJS/CreateJS — e <strong>dois projetos "Easel" já para Claude Code</strong>), <code class="mono">atelier</code> (vários, incluindo um app para Claude/Codex <strong>e um editor de pixel art via CLI/MCP</strong>), <code class="mono">pigment</code> (Pigment CSS da MUI; /home/linuxbrew/.linuxbrew/bin/rtk npm e PyPI ocupados), <code class="mono">plume</code> (motor de blogging ActivityPub), <code class="mono">artforge</code> (ArtForge.ai, geração de arte por IA), <code class="mono">vizforge</code> (VizForge.ai; PyPI e SourceForge ocupados).</li>
+          <li><strong>Sobrevivente:</strong> <code class="mono">keyless-studio</code> — sem conflito exato, saturação baixa. Ressalva: "Keyless" isolado é empresa de autenticação biométrica adquirida pela Ping Identity, então o termo sozinho puxa segurança, não arte.</li>
+        </ul>
+        <p><strong>A lição é mais útil que a lista:</strong> palavra única de dicionário no espaço visual/IA está toda tomada, e o espaço adjacente a Claude Code está sendo ocupado agora. Nome bonito e genérico perde nas duas pontas — colide e não ranqueia.</p>
+      </div>
+    </div>
+    <div class="callout callout-decision">
+      <span class="ico">i</span>
+      <div><strong>Onde o SEO realmente mora.</strong> O nome não precisa carregar as palavras-chave; a <em>descrição</em> e os <em>topics</em> carregam. O nome precisa ser distintivo o bastante para ranquear sozinho quando alguém lembrar dele — o que empurra para um nome de baixa competição, não para um nome descritivo e disputado. Tratar as duas coisas como trabalhos separados: nome distintivo (US-011), termos buscáveis nos metadados (US-013).</div>
+    </div>
+
+    <h3>Dependencies</h3>
+    <ul>
+      <li><a href="multi-engine.html">Feature 1</a> e <a href="portabilidade.html">Feature 2</a> — editam os mesmos arquivos; o rename vem depois para não ser feito duas vezes.</li>
+      <li>US-013 depende da US-009 (README do zero): é o texto criado lá que recebe o tratamento de descoberta.</li>
+    </ul>
+
+    <h3>Requirements Checklist</h3>
+    <ul class="req-checklist">
+      <li class="rc rc-pass"><span class="mark">✓</span>Estão definidos os critérios que um nome candidato precisa satisfazer, de forma que a escolha não dependa de gosto?</li>
+      <li class="rc rc-pass"><span class="mark">✓</span>Está definido o critério que distingue "renomeado" de "renomeado sem referência órfã"?</li>
+      <li class="rc rc-pass"><span class="mark">✓</span>Está definido o que torna uma descrição "buscável", de forma verificável e não opinativa?</li>
+    </ul>
+
+    <h3>Feature-Local Open Questions</h3>
+    <ul class="open-questions">
+      <li class="oq oq-answered"><span class="pill">answered</span> Rename mantém alias para os IDs antigos? — Não. O projeto não tem base de usuários externa; quebrar agora custa barato e evita carregar dois nomes vivos.</li>
+      <li class="oq oq-answered"><span class="pill">answered</span> O nome precisa conter as palavras-chave de busca? — Não. Descrição e topics carregam os termos; o nome carrega distinção. São trabalhos separados.</li>
+      <li class="oq oq-po"><span class="pill">PO</span> Qual o nome final? — <code class="mono">keyless-studio</code> é o único candidato verificado sem colisão, com a ressalva do "Keyless" de autenticação. Se o usuário recusar, a US-011 roda uma segunda rodada com a lente corrigida: evitar palavra única de dicionário. Decisão do usuário.</li>
+      <li class="oq oq-parked"><span class="pill">parked</span> Vale registrar a org/nome no GitHub e npm antes de anunciar, para não perder o nome? — Barato, mas é ação fora do repo e depende do nome escolhido. Decisão tática: fazer junto da US-011, assim que houver nome.</li>
+    </ul>
+
+    <h3>Acceptance Criteria (feature)</h3>
+    <div class="verify-box">Com o nome escolhido: varrer o repo pelos 11 IDs antigos e confirmar retorno vazio fora do CHANGELOG; varrer por invocação <code class="mono">&lt;plugin&gt;:&lt;skill&gt;</code> e confirmar que todo alvo existe. Instalar o marketplace do zero num Claude Code limpo e exercitar uma cadeia que atravessa a dependência entre plugins — um especialista de estilo chamando o fluxo do <code class="mono">sprite</code>, que chama o motor de imagem — confirmando que a cadeia resolve com os IDs novos. Buscar no GitHub pelos termos dos topics e confirmar que o repositório aparece.</div>
+  </section>
+</main>
+</div>
+</body>
+</html>
