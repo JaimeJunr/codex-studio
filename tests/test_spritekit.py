@@ -17,7 +17,7 @@ import pytest
 SPRITEKIT_PATH = (
     Path(__file__).resolve().parent.parent
     / "plugins"
-    / "codex-sprite"
+    / "keyless-sprite"
     / "scripts"
     / "spritekit.py"
 )
@@ -41,7 +41,7 @@ def test_import_does_not_touch_filesystem(monkeypatch, tmp_path):
     coincidem e mascarariam uma regressao real."""
     monkeypatch.setattr(sys, "platform", "darwin")
     monkeypatch.setattr(Path, "home", classmethod(lambda cls: tmp_path))
-    legacy_dir = tmp_path / ".config" / "codex-sprite"
+    legacy_dir = tmp_path / ".config" / "keyless-sprite"
     legacy_dir.mkdir(parents=True)
     (legacy_dir / "config.json").write_text(
         '{"aseprite_path": "/legacy"}', encoding="utf-8"
@@ -60,14 +60,14 @@ def test_import_does_not_touch_filesystem(monkeypatch, tmp_path):
 
 
 def test_discover_envkit_raises_instead_of_killing_process(monkeypatch, tmp_path):
-    """HIGH: quando envkit.py nao e encontrado (nenhum codex-image instalado
+    """HIGH: quando envkit.py nao e encontrado (nenhum keyless-image instalado
     nem no repo nem em ~/.claude/plugins), _discover_envkit precisa levantar
     excecao — nunca sys.exit, que mataria qualquer import/coleta de teste
     que passe por esse caminho.
 
     LOW (rework rodada 3): o teste nao pode depender de onde TMPDIR aponta.
     Se TMPDIR cair dentro do proprio repo, o walk de parents de fake_file
-    alcancaria o plugins/codex-image/scripts/envkit.py real e o teste
+    alcancaria o plugins/keyless-image/scripts/envkit.py real e o teste
     passaria por acidente (ou falharia por motivo errado). Por isso
     is_file() e restrito a paths dentro de tmp_path: qualquer candidato
     fora dai (repo real, instalacoes reais) e' tratado como inexistente."""
@@ -122,7 +122,7 @@ def test_config_free_subcommand_works_without_codex_image(
 ):
     """HIGH (rework rodada 3): main() passou a chamar _ensure_env() de forma
     incondicional, o que derrubava TODOS os subcomandos (inclusive os que
-    nunca leem config) quando o codex-image nao esta instalado — violando a
+    nunca leem config) quando o keyless-image nao esta instalado — violando a
     degradacao graciosa exigida pelo CLAUDE.md. `palettes` nunca toca em
     envkit/config; precisa funcionar de ponta a ponta (exit 0, saida com as
     paletas) com a descoberta do envkit quebrada."""

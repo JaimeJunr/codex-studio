@@ -1,0 +1,10 @@
+{
+  "name": "keyless-image",
+  "version": "0.1.0",
+  "description": "Motor de imagem keyless: gera e edita imagem dentro do Claude Code via polyagent-mcp (tool generate_image) → codex exec + image_gen / gpt-image-2, sem API key. Base dos demais plugins do keyless-studio.",
+  "author": { "name": "JaimeJunr", "url": "https://github.com/JaimeJunr" },
+  "homepage": "https://github.com/JaimeJunr/keyless-studio",
+  "repository": "https://github.com/JaimeJunr/keyless-studio",
+  "license": "MIT",
+  "keywords": ["image", "codex", "keyless", "gpt-image", "edit", "polyagent-mcp"]
+}
